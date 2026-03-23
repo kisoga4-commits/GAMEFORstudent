@@ -135,6 +135,10 @@ button:disabled {
   line-height: 1.4;
 }
 
+.helper-text-warning {
+  color: #facc15;
+}
+
 .card-lobby {
   display: grid;
   gap: 0.8rem;
@@ -239,6 +243,18 @@ code {
   border: 1px solid #334155;
   border-radius: 6px;
   padding: 0.1rem 0.35rem;
+}
+
+.json-preview {
+  margin: 0.7rem 0 0;
+  padding: 0.75rem;
+  background: #020617;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  overflow-x: auto;
+  color: #cbd5e1;
+  font-size: 0.82rem;
+  line-height: 1.45;
 }
 
 .card-game,

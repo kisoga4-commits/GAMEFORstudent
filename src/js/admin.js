@@ -20,6 +20,7 @@ const resetBtn = document.getElementById("resetBtn");
 const seedBtn = document.getElementById("seedBtn");
 const searchInput = document.getElementById("searchInput");
 const formModeText = document.getElementById("formModeText");
+const adminHint = document.getElementById("adminHint");
 
 let allLevels = [];
 let editingLevelId = "";
@@ -44,6 +45,7 @@ onAuthStateChanged(auth, async (user) => {
     }
 
     canManageLevels = Boolean(profile.isAdmin);
+    applyAdminPermissions(canManageLevels);
 
     if (!canManageLevels) {
       setStatus("บัญชีนี้ยังไม่มีสิทธิ์แอดมิน (ตั้งค่า isAdmin=true ใน players/{uid})", true);
@@ -278,4 +280,25 @@ function guardAdmin() {
 
   setStatus("บัญชีนี้ไม่มีสิทธิ์จัดการด่าน (isAdmin=true)", true);
   return false;
+}
+
+function applyAdminPermissions(isAdmin) {
+  const editableElements = [
+    ...Array.from(levelForm?.elements || []),
+    refreshBtn,
+    resetBtn,
+    seedBtn
+  ];
+
+  editableElements.forEach((element) => {
+    if (!element || element === searchInput) {
+      return;
+    }
+
+    element.disabled = !isAdmin;
+  });
+
+  if (adminHint) {
+    adminHint.hidden = isAdmin;
+  }
 }

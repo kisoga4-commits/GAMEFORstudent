@@ -12,6 +12,7 @@
         <p class="badge">🛠️ Level Admin</p>
         <h1>Admin - เพิ่ม/แก้โจทย์และด่าน</h1>
         <p class="subtitle">ออกแบบให้ใช้งานง่ายทั้งมือถือและคอมพิวเตอร์ โดยเก็บข้อมูลลง Firestore collection: <code>levels</code></p>
+        <p id="adminHint" class="helper-text helper-text-warning" hidden>บัญชีนี้ยังไม่มีสิทธิ์แอดมิน: ให้ตั้งค่า <code>isAdmin=true</code> ในเอกสาร <code>players/{uid}</code></p>
 
         <p id="formModeText" class="helper-text">โหมดเพิ่มด่านใหม่</p>
 
@@ -106,6 +107,28 @@
             </thead>
             <tbody id="levelsTableBody"></tbody>
           </table>
+        </section>
+
+        <section class="queue-panel" aria-label="โครงสร้าง Firestore ตัวอย่าง">
+          <h2>ตัวอย่างโครงสร้าง Firestore document</h2>
+          <pre class="json-preview">levels/{levelId}
+{
+  worldId: "world-1",
+  levelId: "w1-l1",
+  title: "บวกเลขพื้นฐาน",
+  description: "ฝึกบวกเลข 1 หลัก",
+  difficultyRank: 1,
+  questionType: "multiple-choice",
+  questionText: "2 + 3 = ?",
+  choiceA: "4",
+  choiceB: "5",
+  choiceC: "6",
+  correctAnswer: "B",
+  rewardCoins: 10,
+  rewardItemChance: 0.1,
+  mapType: "forest",
+  status: "active"
+}</pre>
         </section>
 
         <p id="statusMessage" class="status" role="status" aria-live="polite"></p>

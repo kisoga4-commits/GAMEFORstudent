@@ -119,6 +119,27 @@ export function validateLevel(levelPayload) {
     };
   }
 
+  if (!Number.isInteger(levelPayload.difficultyRank) || levelPayload.difficultyRank < 1) {
+    return {
+      isValid: false,
+      message: "difficultyRank ต้องเป็นจำนวนเต็มที่มากกว่า 0"
+    };
+  }
+
+  if (!QUESTION_TYPES.includes(levelPayload.questionType)) {
+    return {
+      isValid: false,
+      message: `questionType ต้องเป็นค่าในระบบ: ${QUESTION_TYPES.join(", ")}`
+    };
+  }
+
+  if (!MAP_TYPES.includes(levelPayload.mapType)) {
+    return {
+      isValid: false,
+      message: `mapType ต้องเป็นค่าในระบบ: ${MAP_TYPES.join(", ")}`
+    };
+  }
+
   if (![LEVEL_STATUS.ACTIVE, LEVEL_STATUS.INACTIVE].includes(levelPayload.status)) {
     return {
       isValid: false,
