@@ -44,10 +44,11 @@ const HERO_SIZE = 9;
 const LEVEL_SIZE = 14;
 const ANSWER_SIZE = 14;
 const STEP = 2.5;
+const MODAL_REOPEN_COOLDOWN_MS = 1500;
 
 const hero = {
-  x: 24,
-  y: 78,
+  x: 50,
+  y: 90,
   el: null
 };
 
@@ -63,6 +64,9 @@ let activeLevel = null;
 let selectedChoiceId = null;
 let holdMoveTimer = null;
 let currentScene = "world";
+let activeTriggerLevelId = null;
+const modalCooldownUntilByLevel = new Map();
+const triggerExitRequiredLevels = new Set();
 
 const setStatus = (message, isError = false) => {
   worldStatus.textContent = message;
@@ -133,8 +137,17 @@ const updateLevelHeroPosition = () => {
   levelHero.el.style.top = `${levelHero.y}%`;
 };
 
-const closeLevelModal = (resetActive = true) => {
+const closeLevelModal = ({ resetActive = true, applyCooldown = true } = {}) => {
+  if (levelModal.hidden) return;
+
+  if (applyCooldown && activeLevel?.id) {
+    modalCooldownUntilByLevel.set(activeLevel.id, Date.now() + MODAL_REOPEN_COOLDOWN_MS);
+    triggerExitRequiredLevels.add(activeLevel.id);
+  }
+
   levelModal.hidden = true;
+  console.debug("[world] modal closed", { levelId: activeLevel?.id ?? null, applyCooldown });
+
   if (resetActive) {
     activeLevel = null;
   }
@@ -152,6 +165,7 @@ const openLevelModal = (level) => {
   startLevelBtn.textContent = unlocked ? "เริ่มด่าน" : "ยังเริ่มไม่ได้";
 
   levelModal.hidden = false;
+  console.debug("[world] modal opened", { levelId: level.id });
 };
 
 const checkLevelCollision = () => {
@@ -161,7 +175,24 @@ const checkLevelCollision = () => {
     return dx <= (HERO_SIZE + LEVEL_SIZE) / 2 && dy <= (HERO_SIZE + LEVEL_SIZE) / 2;
   });
 
-  if (!hitLevel || activeLevel?.id === hitLevel.id || !levelModal.hidden) {
+  if (!hitLevel) {
+    if (activeTriggerLevelId) {
+      triggerExitRequiredLevels.delete(activeTriggerLevelId);
+    }
+    activeTriggerLevelId = null;
+    return;
+  }
+
+  if (activeTriggerLevelId !== hitLevel.id) {
+    activeTriggerLevelId = hitLevel.id;
+    console.debug("[world] entered level trigger", { levelId: hitLevel.id });
+  }
+
+  const cooldownUntil = modalCooldownUntilByLevel.get(hitLevel.id) ?? 0;
+  const isCoolingDown = Date.now() < cooldownUntil;
+  const requiresExitFirst = triggerExitRequiredLevels.has(hitLevel.id);
+
+  if (activeLevel?.id === hitLevel.id || !levelModal.hidden || isCoolingDown || requiresExitFirst) {
     return;
   }
 
@@ -306,6 +337,7 @@ const startLevel = (level) => {
     return;
   }
 
+  console.debug("[world] navigating to level", { levelId: level.id, targetScene: "level" });
   activeLevel = level;
   selectedChoiceId = null;
   levelSceneTitle.textContent = level.name;
@@ -324,7 +356,7 @@ const startLevel = (level) => {
   levelArena.appendChild(levelHero.el);
   updateLevelHeroPosition();
 
-  closeLevelModal(false);
+  closeLevelModal({ resetActive: false, applyCooldown: false });
   currentScene = "level";
   worldShell.hidden = true;
   levelShell.hidden = false;
@@ -375,7 +407,7 @@ const bindControls = () => {
 
   window.addEventListener("pointerup", stopHoldMove);
 
-  closeModalBtn.addEventListener("click", closeLevelModal);
+  closeModalBtn.addEventListener("click", () => closeLevelModal());
   levelModal.addEventListener("click", (event) => {
     if (event.target === levelModal) {
       closeLevelModal();
@@ -384,6 +416,7 @@ const bindControls = () => {
 
   startLevelBtn.addEventListener("click", () => {
     if (!activeLevel || startLevelBtn.disabled) return;
+    console.debug("[world] start level clicked", { levelId: activeLevel.id });
     startLevel(activeLevel);
   });
 
@@ -407,9 +440,11 @@ const renderWorld = () => {
     worldMap.appendChild(createLevelNode(level));
   });
 
+  console.debug("[world] world loaded", { levelCount: WORLD_LEVELS.length });
   hero.el = createHeroNode();
   worldMap.appendChild(hero.el);
   updateHeroPosition();
+  console.debug("[world] player spawned", { x: hero.x, y: hero.y });
 };
 
 const ensureUser = async () => {
