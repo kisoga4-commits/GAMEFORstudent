@@ -108,9 +108,17 @@ const createAnswerNode = (choice) => {
   return answerNode;
 };
 
+const getUnlockedCount = () => {
+  const unlockedRaw = playerData?.unlockedLevels;
+  const unlockedCount = Number.parseInt(unlockedRaw, 10);
+  if (!Number.isFinite(unlockedCount) || unlockedCount < 1) {
+    return 1;
+  }
+  return unlockedCount;
+};
+
 const isLevelUnlocked = (level) => {
-  const unlockedCount = Number(playerData?.unlockedLevels ?? 1);
-  return unlockedCount >= level.unlockOrder;
+  return getUnlockedCount() >= level.unlockOrder;
 };
 
 const updateHeroPosition = () => {
@@ -230,7 +238,7 @@ const startHoldMove = (direction) => {
 const saveProgress = async (level) => {
   if (!currentUser) return;
 
-  const nextUnlocked = Math.max(level.unlockOrder + 1, Number(playerData?.unlockedLevels ?? 1));
+  const nextUnlocked = Math.max(level.unlockOrder + 1, getUnlockedCount());
   const completedLevels = Array.isArray(playerData?.completedLevels)
     ? new Set(playerData.completedLevels)
     : new Set();
@@ -323,6 +331,15 @@ const startLevel = (level) => {
 };
 
 const bindControls = () => {
+  worldMap.addEventListener("click", (event) => {
+    if (currentScene !== "world" || !levelModal.hidden) return;
+    const levelNode = event.target.closest(".level-node");
+    if (!levelNode) return;
+    const level = WORLD_LEVELS.find((item) => item.id === levelNode.dataset.levelId);
+    if (!level) return;
+    openLevelModal(level);
+  });
+
   document.querySelectorAll("[data-dir]").forEach((button) => {
     const direction = button.dataset.dir;
     button.addEventListener("click", () => moveHero(direction));
