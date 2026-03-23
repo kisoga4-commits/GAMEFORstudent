@@ -1,21 +1,21 @@
 export const WORLD_LEVELS = [
   {
-    id: "forest",
-    shortName: "ป่าคณิต",
-    name: "ด่านป่าคณิต",
-    description: "ชวนเพื่อนสัตว์มาช่วยบวกเลขง่าย ๆ",
+    id: "level-1",
+    shortName: "ด่าน 1",
+    name: "ด่านแรก",
+    description: "ด่านทดลองระบบ: ตอบคำถามให้ถูกเพื่อผ่านด่าน",
     unlockOrder: 1,
     emoji: "🧮",
     x: 16,
     y: 26,
     challenge: {
-      question: "2 + 3 ได้เท่าไหร่?",
-      successMessage: "เก่งมาก! ผ่านด่านแรกแล้ว 🎉",
-      failMessage: "ยังไม่ถูก ลองเดินไปเลือกใหม่อีกครั้งนะ",
+      question: "2 + 1 = ?",
+      successMessage: "ผ่านด่าน",
+      failMessage: "ลองอีกครั้ง",
       choices: [
-        { id: "a", label: "4", x: 18, y: 30 },
-        { id: "b", label: "5", x: 50, y: 16 },
-        { id: "c", label: "6", x: 82, y: 30 }
+        { id: "a", label: "A: 2", value: "2", x: 18, y: 30 },
+        { id: "b", label: "B: 3", value: "3", x: 50, y: 16 },
+        { id: "c", label: "C: 4", value: "4", x: 82, y: 30 }
       ],
       correctChoiceId: "b"
     }
