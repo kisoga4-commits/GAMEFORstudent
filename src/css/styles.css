@@ -134,3 +134,92 @@ button:disabled {
   font-size: 0.9rem;
   line-height: 1.4;
 }
+
+.card-lobby {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.stats-grid {
+  display: grid;
+  gap: 0.55rem;
+  grid-template-columns: 1fr;
+}
+
+.stat-item {
+  background: #0b1220;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 0.7rem 0.8rem;
+}
+
+.stat-label {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+.stat-value {
+  margin: 0.2rem 0 0;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #bbf7d0;
+}
+
+.queue-panel {
+  border: 1px solid #334155;
+  border-radius: 14px;
+  background: #0b1220;
+  padding: 0.8rem;
+}
+
+.queue-panel h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.queue-state {
+  margin: 0.45rem 0 0.8rem;
+  color: #86efac;
+  font-weight: 700;
+}
+
+.action-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+.btn-secondary,
+.link-btn-secondary {
+  background: #1e293b;
+  color: #e2e8f0;
+  border: 1px solid #475569;
+}
+
+.queue-list {
+  margin: 0.8rem 0 0;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.queue-item {
+  color: #e2e8f0;
+}
+
+.queue-item-empty {
+  color: #94a3b8;
+  list-style: none;
+  margin-left: -1rem;
+}
+
+@media (min-width: 520px) {
+  .stats-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .action-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
