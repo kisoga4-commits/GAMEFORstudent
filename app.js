@@ -25,10 +25,10 @@ const playerCodeInput = document.getElementById("playerCode");
 const statusEl = document.getElementById("status");
 const installBtn = document.getElementById("installBtn");
 
-const STATUS_SAVING = "กำลังบันทึก...";
-const STATUS_SAVE_SUCCESS = "บันทึกสำเร็จ";
-const STATUS_LOAD_SUCCESS = "โหลดข้อมูลสำเร็จ";
-const STATUS_ERROR = "เกิดข้อผิดพลาด";
+const STATUS_SAVING = "⏳ กำลังบันทึก...";
+const STATUS_SAVE_SUCCESS = "✅ บันทึกแล้ว";
+const STATUS_LOAD_SUCCESS = "✅ โหลดแล้ว";
+const STATUS_ERROR = "⚠️ ผิดพลาด";
 
 let deferredPrompt = null;
 let currentUid = null;
