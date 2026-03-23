@@ -29,6 +29,17 @@ export async function savePlayerProfile({ uid, characterName, accessCode }) {
   await setDoc(playerRef, payload, { merge: true });
 }
 
+export async function getPlayerProfile(uid) {
+  const playerRef = doc(db, "players", uid);
+  const playerSnapshot = await getDoc(playerRef);
+
+  if (!playerSnapshot.exists()) {
+    return null;
+  }
+
+  return playerSnapshot.data();
+}
+
 async function sha256(value) {
   const content = new TextEncoder().encode(value);
   const buffer = await crypto.subtle.digest("SHA-256", content);
