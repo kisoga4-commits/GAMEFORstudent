@@ -23,45 +23,52 @@ const startLevelBtn = document.getElementById("startLevelBtn");
 const closeModalBtn = document.getElementById("closeModalBtn");
 
 const MAP_SIZE = 100;
-const HERO_SIZE = 10;
-const LEVEL_SIZE = 13;
-const STEP = 3;
+const HERO_SIZE = 9;
+const LEVEL_SIZE = 14;
+const STEP = 2.5;
 
 const levels = [
   {
     id: "forest",
+    shortName: "ป่าคณิต",
     name: "ด่านป่าคณิต",
-    description: "ฝึกบวกเลขกับเพื่อนสัตว์ในป่า",
+    description: "ชวนเพื่อนสัตว์มาช่วยบวกเลขง่าย ๆ",
     unlockOrder: 1,
-    x: 12,
-    y: 18
+    emoji: "🧮",
+    x: 16,
+    y: 26
   },
   {
     id: "river",
+    shortName: "แม่น้ำศัพท์",
     name: "ด่านแม่น้ำคำศัพท์",
-    description: "พายเรือสะกดคำศัพท์ง่าย ๆ",
+    description: "ล่องเรือสะกดคำทีละพยางค์",
     unlockOrder: 2,
-    x: 62,
+    emoji: "📘",
+    x: 84,
     y: 30
   },
   {
     id: "castle",
+    shortName: "ปราสาทตรรกะ",
     name: "ด่านปราสาทตรรกะ",
-    description: "แก้ปริศนาตรรกะเพื่อขึ้นปราสาท",
+    description: "แก้ปริศนาเพื่อเปิดประตูปราสาท",
     unlockOrder: 3,
-    x: 38,
-    y: 68
+    emoji: "🧩",
+    x: 77,
+    y: 74
   }
 ];
 
 const hero = {
-  x: 50,
-  y: 52,
+  x: 24,
+  y: 78,
   el: null
 };
 
 let playerData = null;
 let activeLevel = null;
+let holdMoveTimer = null;
 
 const setStatus = (message, isError = false) => {
   worldStatus.textContent = message;
@@ -77,7 +84,10 @@ const createLevelNode = (level) => {
   levelNode.dataset.levelId = level.id;
   levelNode.style.left = `${level.x}%`;
   levelNode.style.top = `${level.y}%`;
-  levelNode.textContent = "🏁";
+  levelNode.innerHTML = `
+    <span class="level-emoji" aria-hidden="true">${level.emoji}</span>
+    <span class="level-label">${level.shortName}</span>
+  `;
   levelNode.setAttribute("aria-label", level.name);
   return levelNode;
 };
@@ -85,7 +95,7 @@ const createLevelNode = (level) => {
 const createHeroNode = () => {
   const node = document.createElement("div");
   node.className = "hero";
-  node.innerHTML = '<span class="hero-face">😊</span>';
+  node.innerHTML = '<span class="hero-face">🧒</span>';
   return node;
 };
 
@@ -115,6 +125,8 @@ const checkLevelCollision = () => {
 };
 
 const moveHero = (direction) => {
+  if (!levelModal.hidden) return;
+
   switch (direction) {
     case "up":
       hero.y = clamp(hero.y - STEP, HERO_SIZE / 2, MAP_SIZE - HERO_SIZE / 2);
@@ -155,16 +167,34 @@ const openLevelModal = (level) => {
   levelModal.hidden = false;
 };
 
+const stopHoldMove = () => {
+  if (!holdMoveTimer) return;
+  window.clearInterval(holdMoveTimer);
+  holdMoveTimer = null;
+};
+
+const startHoldMove = (direction) => {
+  stopHoldMove();
+  moveHero(direction);
+  holdMoveTimer = window.setInterval(() => moveHero(direction), 120);
+};
+
 const bindControls = () => {
   document.querySelectorAll("[data-dir]").forEach((button) => {
-    button.addEventListener("click", () => {
-      moveHero(button.dataset.dir);
+    const direction = button.dataset.dir;
+    button.addEventListener("click", () => moveHero(direction));
+
+    button.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
+      startHoldMove(direction);
     });
+
+    button.addEventListener("pointerup", stopHoldMove);
+    button.addEventListener("pointercancel", stopHoldMove);
+    button.addEventListener("pointerleave", stopHoldMove);
   });
 
   window.addEventListener("keydown", (event) => {
-    if (!levelModal.hidden) return;
-
     const keyMap = {
       ArrowUp: "up",
       ArrowDown: "down",
@@ -183,6 +213,8 @@ const bindControls = () => {
     }
   });
 
+  window.addEventListener("pointerup", stopHoldMove);
+
   closeModalBtn.addEventListener("click", closeLevelModal);
   levelModal.addEventListener("click", (event) => {
     if (event.target === levelModal) {
@@ -192,7 +224,7 @@ const bindControls = () => {
 
   startLevelBtn.addEventListener("click", () => {
     if (!activeLevel || startLevelBtn.disabled) return;
-    setStatus(`กำลังเตรียม ${activeLevel.name}... (เดี๋ยวเชื่อมระบบด่านจริง)`);
+    setStatus(`เลือก ${activeLevel.name} แล้ว (ยังไม่เปิดระบบด่านเต็ม)`);
     closeLevelModal();
   });
 };
@@ -222,7 +254,7 @@ const loadPlayer = async (uid) => {
 
 const init = async () => {
   try {
-    setStatus("กำลังโหลดโปรไฟล์...");
+    setStatus("กำลังโหลดโปรไฟล์ผู้เล่น...");
     const user = await ensureUser();
     playerData = await loadPlayer(user.uid);
 
@@ -231,8 +263,8 @@ const init = async () => {
       return;
     }
 
-    playerGreeting.textContent = `สวัสดี ${playerData.playerName} พร้อมผจญภัย!`;
-    setStatus("เดินด้วยปุ่มบนจอ หรือปุ่มลูกศร/WASD เพื่อชนจุดด่าน");
+    playerGreeting.textContent = `สวัสดี ${playerData.playerName} ออกสำรวจโลกกัน!`;
+    setStatus("เดินชนด่านเพื่อเปิดหน้าต่างเริ่มทดสอบ");
     renderWorld();
     bindControls();
 
@@ -240,7 +272,7 @@ const init = async () => {
       await navigator.serviceWorker.register("./service-worker.js");
     }
   } catch {
-    setStatus("เชื่อมต่อเกมไม่สำเร็จ ลองใหม่อีกครั้ง", true);
+    setStatus("เชื่อมต่อโลกเกมไม่สำเร็จ กรุณาลองใหม่", true);
   }
 };
 
