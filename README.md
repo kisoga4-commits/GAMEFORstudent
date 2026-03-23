@@ -1,42 +1,95 @@
-# GAMEFORstudent (Step 1 MVP)
+# GAMEFORstudent (Step 2: Login + Lobby พร้อมใช้จริง)
 
-โปรเจกต์เริ่มต้นสำหรับเกมการศึกษาแนว 2D top-down maze แบบ PWA โดยใน Step 1 นี้เน้น:
+โปรเจกต์เกมการศึกษาแนว 2D top-down maze แบบ PWA
+โดยใน Step 2 นี้เพิ่มระบบหน้าเข้าเกมที่ใช้งานจริงด้วย Firebase Anonymous Auth + Firestore
 
-- โครงสร้างโปรเจกต์ที่ขยายต่อได้
-- หน้าเข้าเกม (Landing + แบบฟอร์ม)
-- เชื่อม Firebase (Anonymous Auth + Firestore)
-- โครงสร้าง PWA เบื้องต้น (manifest + service worker)
+## สิ่งที่มีในเวอร์ชันนี้
 
-## โครงสร้าง
+- หน้าเข้าเกมแบบ mobile-first
+- ฟอร์ม 2 ช่อง: `ชื่อตัวละคร` และ `รหัส`
+- ปุ่ม `เข้าเล่น`
+- เมื่อกดเข้าเล่น:
+  - ล็อกอินด้วย **Firebase Anonymous Auth เท่านั้น**
+  - สร้างข้อมูลผู้เล่นใหม่ใน Firestore เมื่อเข้าเล่นครั้งแรก
+  - ถ้ามีข้อมูลแล้ว จะอ่าน/อัปเดตข้อมูลเดิม
+- ไปหน้า Lobby อัตโนมัติเมื่อสำเร็จ
+- validation เบื้องต้น
+
+## โครงสร้างไฟล์หลัก
 
 ```txt
 public/
-  index.html
-  lobby.html
+  index.html                  # หน้าเข้าเกม
+  lobby.html                  # หน้า Lobby
   manifest.webmanifest
   sw.js
 src/
-  css/styles.css
+  css/
+    styles.css                # UI สไตล์เกมเด็ก (mobile-first)
   js/
-    main.js
-    firebase.js
-    config/firebase.example.js
+    main.js                   # logic หน้า login
+    lobby.js                  # logic หน้า lobby
+    firebase.js               # initialize Firebase app/auth/firestore
+    config/
+      firebase.config.js      # ใส่ config จริงของโปรเจกต์ Firebase
     services/
-      auth.js
-      player.js
+      auth.js                 # Anonymous auth logic
+      player.js               # Firestore player profile logic
 ```
 
-## วิธีเริ่มใช้งาน
+## วิธีตั้งค่า Firebase (สำคัญ)
 
 1. สร้าง Firebase Project
-2. เปิดใช้งาน Anonymous Authentication
+2. เปิดใช้งาน **Authentication > Sign-in method > Anonymous**
 3. สร้าง Firestore Database
-4. คัดลอก `src/js/config/firebase.example.js` เป็น `src/js/config/firebase.config.js`
-5. เติมค่า Firebase config จริง
-6. เสิร์ฟไฟล์ด้วย static server (เช่น `npx serve .`)
-7. เปิด `http://localhost:3000/public/`
+4. เปิดไฟล์ `src/js/config/firebase.config.js` แล้วใส่ค่าจริง:
+
+```js
+export const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+```
+
+> ถ้าไม่ใส่ค่าจริง ระบบล็อกอินและบันทึก Firestore จะใช้งานไม่ได้
+
+## ตัวอย่างโครงสร้าง Document ใน Firestore
+
+Collection: `players`
+
+Document ID: `uid` (จาก anonymous auth)
+
+ตัวอย่าง:
+
+```json
+{
+  "uid": "3dhjK...",
+  "playerName": "Nina",
+  "playerCode": "AB12",
+  "createdAt": "Firestore Timestamp",
+  "lastLoginAt": "Firestore Timestamp",
+  "coins": 0,
+  "rank": 1,
+  "currentLevel": 1
+}
+```
+
+## การรันโปรเจกต์
+
+```bash
+npx serve .
+```
+
+เปิด:
+
+- `http://localhost:3000/public/` (หน้าเข้าเกม)
+- `http://localhost:3000/public/lobby.html` (หน้า Lobby)
 
 ## หมายเหตุ
 
-- ใน Step ถัดไปจะเพิ่ม Realtime Database สำหรับจำนวนคนออนไลน์และระบบ lobby/queue แบบ realtime
-- ไฟล์นี้เป็น MVP เพื่อให้เริ่มพัฒนาแบบ incremental ได้ง่าย
+- เวอร์ชันนี้ **ไม่ใช้ email/password**
+- ใช้ anonymous auth อย่างเดียวตาม requirement

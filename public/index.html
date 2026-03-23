@@ -3,41 +3,39 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Maze Kids - เข้าเกม</title>
-    <meta name="theme-color" content="#0f172a" />
+    <title>Maze Kids - เข้าเล่น</title>
+    <meta name="theme-color" content="#6d28d9" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="stylesheet" href="../src/css/styles.css" />
   </head>
   <body>
-    <main class="container">
-      <section class="card">
-        <h1>Maze Kids</h1>
-        <p class="subtitle">เกมการศึกษาแนวเขาวงกตสำหรับเด็ก (MVP - Step 1)</p>
+    <main class="page page-login">
+      <section class="game-card">
+        <p class="badge">🎮 Kid Maze Adventure</p>
+        <h1>เข้าเล่นเกม</h1>
+        <p class="subtitle">กรอกข้อมูล 2 ช่อง แล้วเริ่มผจญภัยได้ทันที</p>
 
         <form id="loginForm" class="form" autocomplete="off">
-          <label for="characterName">ชื่อตัวละคร</label>
+          <label for="playerName">ชื่อตัวละคร</label>
           <input
-            id="characterName"
-            name="characterName"
+            id="playerName"
+            name="playerName"
             type="text"
-            minlength="2"
-            maxlength="24"
-            placeholder="เช่น BraveKid"
+            maxlength="20"
+            placeholder="เช่น นักสำรวจดาว"
             required
           />
 
-          <label for="accessCode">รหัส</label>
+          <label for="playerCode">รหัส</label>
           <input
-            id="accessCode"
-            name="accessCode"
+            id="playerCode"
+            name="playerCode"
             type="password"
-            minlength="4"
-            maxlength="16"
             placeholder="กรอกรหัส"
             required
           />
 
-          <button id="submitBtn" type="submit">เข้าเกม</button>
+          <button id="submitBtn" type="submit">เข้าเล่น</button>
         </form>
 
         <p id="statusMessage" class="status" aria-live="polite"></p>
