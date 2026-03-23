@@ -5,13 +5,22 @@ import {
   setPersistence,
   signInAnonymously
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { doc, getDoc, getFirestore } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import {
+  doc,
+  getDoc,
+  getFirestore,
+  serverTimestamp,
+  setDoc
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { firebaseConfig } from "./firebase-config.js";
+import { WORLD_LEVELS } from "./level-data.js";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+const worldShell = document.getElementById("worldShell");
+const levelShell = document.getElementById("levelShell");
 const worldMap = document.getElementById("worldMap");
 const worldStatus = document.getElementById("worldStatus");
 const playerGreeting = document.getElementById("playerGreeting");
@@ -21,44 +30,18 @@ const levelDescription = document.getElementById("levelDescription");
 const levelLock = document.getElementById("levelLock");
 const startLevelBtn = document.getElementById("startLevelBtn");
 const closeModalBtn = document.getElementById("closeModalBtn");
+const levelSceneTitle = document.getElementById("levelSceneTitle");
+const levelSceneQuestion = document.getElementById("levelSceneQuestion");
+const levelArena = document.getElementById("levelArena");
+const levelFeedback = document.getElementById("levelFeedback");
+const submitAnswerBtn = document.getElementById("submitAnswerBtn");
+const backToWorldBtn = document.getElementById("backToWorldBtn");
 
 const MAP_SIZE = 100;
 const HERO_SIZE = 9;
 const LEVEL_SIZE = 14;
+const ANSWER_SIZE = 14;
 const STEP = 2.5;
-
-const levels = [
-  {
-    id: "forest",
-    shortName: "ป่าคณิต",
-    name: "ด่านป่าคณิต",
-    description: "ชวนเพื่อนสัตว์มาช่วยบวกเลขง่าย ๆ",
-    unlockOrder: 1,
-    emoji: "🧮",
-    x: 16,
-    y: 26
-  },
-  {
-    id: "river",
-    shortName: "แม่น้ำศัพท์",
-    name: "ด่านแม่น้ำคำศัพท์",
-    description: "ล่องเรือสะกดคำทีละพยางค์",
-    unlockOrder: 2,
-    emoji: "📘",
-    x: 84,
-    y: 30
-  },
-  {
-    id: "castle",
-    shortName: "ปราสาทตรรกะ",
-    name: "ด่านปราสาทตรรกะ",
-    description: "แก้ปริศนาเพื่อเปิดประตูปราสาท",
-    unlockOrder: 3,
-    emoji: "🧩",
-    x: 77,
-    y: 74
-  }
-];
 
 const hero = {
   x: 24,
@@ -66,13 +49,27 @@ const hero = {
   el: null
 };
 
+const levelHero = {
+  x: 50,
+  y: 84,
+  el: null
+};
+
 let playerData = null;
+let currentUser = null;
 let activeLevel = null;
+let selectedChoiceId = null;
 let holdMoveTimer = null;
+let currentScene = "world";
 
 const setStatus = (message, isError = false) => {
   worldStatus.textContent = message;
   worldStatus.classList.toggle("error", isError);
+};
+
+const setLevelFeedback = (message, isError = false) => {
+  levelFeedback.textContent = message;
+  levelFeedback.classList.toggle("error", isError);
 };
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
@@ -92,11 +89,21 @@ const createLevelNode = (level) => {
   return levelNode;
 };
 
-const createHeroNode = () => {
+const createHeroNode = (extraClass = "") => {
   const node = document.createElement("div");
-  node.className = "hero";
+  node.className = `hero ${extraClass}`.trim();
   node.innerHTML = '<span class="hero-face">🧒</span>';
   return node;
+};
+
+const createAnswerNode = (choice) => {
+  const answerNode = document.createElement("div");
+  answerNode.className = "answer-node";
+  answerNode.dataset.choiceId = choice.id;
+  answerNode.style.left = `${choice.x}%`;
+  answerNode.style.top = `${choice.y}%`;
+  answerNode.textContent = choice.label;
+  return answerNode;
 };
 
 const isLevelUnlocked = (level) => {
@@ -110,47 +117,17 @@ const updateHeroPosition = () => {
   hero.el.style.top = `${hero.y}%`;
 };
 
-const checkLevelCollision = () => {
-  const hitLevel = levels.find((level) => {
-    const dx = Math.abs(hero.x - level.x);
-    const dy = Math.abs(hero.y - level.y);
-    return dx <= (HERO_SIZE + LEVEL_SIZE) / 2 && dy <= (HERO_SIZE + LEVEL_SIZE) / 2;
-  });
-
-  if (!hitLevel || activeLevel?.id === hitLevel.id || !levelModal.hidden) {
-    return;
-  }
-
-  openLevelModal(hitLevel);
+const updateLevelHeroPosition = () => {
+  if (!levelHero.el) return;
+  levelHero.el.style.left = `${levelHero.x}%`;
+  levelHero.el.style.top = `${levelHero.y}%`;
 };
 
-const moveHero = (direction) => {
-  if (!levelModal.hidden) return;
-
-  switch (direction) {
-    case "up":
-      hero.y = clamp(hero.y - STEP, HERO_SIZE / 2, MAP_SIZE - HERO_SIZE / 2);
-      break;
-    case "down":
-      hero.y = clamp(hero.y + STEP, HERO_SIZE / 2, MAP_SIZE - HERO_SIZE / 2);
-      break;
-    case "left":
-      hero.x = clamp(hero.x - STEP, HERO_SIZE / 2, MAP_SIZE - HERO_SIZE / 2);
-      break;
-    case "right":
-      hero.x = clamp(hero.x + STEP, HERO_SIZE / 2, MAP_SIZE - HERO_SIZE / 2);
-      break;
-    default:
-      return;
-  }
-
-  updateHeroPosition();
-  checkLevelCollision();
-};
-
-const closeLevelModal = () => {
+const closeLevelModal = (resetActive = true) => {
   levelModal.hidden = true;
-  activeLevel = null;
+  if (resetActive) {
+    activeLevel = null;
+  }
 };
 
 const openLevelModal = (level) => {
@@ -167,6 +144,75 @@ const openLevelModal = (level) => {
   levelModal.hidden = false;
 };
 
+const checkLevelCollision = () => {
+  const hitLevel = WORLD_LEVELS.find((level) => {
+    const dx = Math.abs(hero.x - level.x);
+    const dy = Math.abs(hero.y - level.y);
+    return dx <= (HERO_SIZE + LEVEL_SIZE) / 2 && dy <= (HERO_SIZE + LEVEL_SIZE) / 2;
+  });
+
+  if (!hitLevel || activeLevel?.id === hitLevel.id || !levelModal.hidden) {
+    return;
+  }
+
+  openLevelModal(hitLevel);
+};
+
+const markSelectedChoice = () => {
+  levelArena.querySelectorAll(".answer-node").forEach((node) => {
+    node.classList.toggle("active", node.dataset.choiceId === selectedChoiceId);
+  });
+};
+
+const checkAnswerCollision = () => {
+  if (!activeLevel?.challenge) return;
+
+  const hitChoice = activeLevel.challenge.choices.find((choice) => {
+    const dx = Math.abs(levelHero.x - choice.x);
+    const dy = Math.abs(levelHero.y - choice.y);
+    return dx <= (HERO_SIZE + ANSWER_SIZE) / 2 && dy <= (HERO_SIZE + ANSWER_SIZE) / 2;
+  });
+
+  selectedChoiceId = hitChoice?.id ?? null;
+  markSelectedChoice();
+
+  if (selectedChoiceId) {
+    setLevelFeedback(`เลือกคำตอบ: ${hitChoice.label} แล้ว กดปุ่มตอบได้เลย`);
+  }
+};
+
+const moveHero = (direction) => {
+  if (levelModal.hidden === false) return;
+
+  const targetHero = currentScene === "world" ? hero : levelHero;
+
+  switch (direction) {
+    case "up":
+      targetHero.y = clamp(targetHero.y - STEP, HERO_SIZE / 2, MAP_SIZE - HERO_SIZE / 2);
+      break;
+    case "down":
+      targetHero.y = clamp(targetHero.y + STEP, HERO_SIZE / 2, MAP_SIZE - HERO_SIZE / 2);
+      break;
+    case "left":
+      targetHero.x = clamp(targetHero.x - STEP, HERO_SIZE / 2, MAP_SIZE - HERO_SIZE / 2);
+      break;
+    case "right":
+      targetHero.x = clamp(targetHero.x + STEP, HERO_SIZE / 2, MAP_SIZE - HERO_SIZE / 2);
+      break;
+    default:
+      return;
+  }
+
+  if (currentScene === "world") {
+    updateHeroPosition();
+    checkLevelCollision();
+    return;
+  }
+
+  updateLevelHeroPosition();
+  checkAnswerCollision();
+};
+
 const stopHoldMove = () => {
   if (!holdMoveTimer) return;
   window.clearInterval(holdMoveTimer);
@@ -177,6 +223,101 @@ const startHoldMove = (direction) => {
   stopHoldMove();
   moveHero(direction);
   holdMoveTimer = window.setInterval(() => moveHero(direction), 120);
+};
+
+const saveProgress = async (level) => {
+  if (!currentUser) return;
+
+  const nextUnlocked = Math.max(level.unlockOrder + 1, Number(playerData?.unlockedLevels ?? 1));
+  const completedLevels = Array.isArray(playerData?.completedLevels)
+    ? new Set(playerData.completedLevels)
+    : new Set();
+
+  completedLevels.add(level.id);
+
+  const payload = {
+    unlockedLevels: nextUnlocked,
+    completedLevels: Array.from(completedLevels),
+    updatedAt: serverTimestamp()
+  };
+
+  await setDoc(doc(db, "players", currentUser.uid), payload, { merge: true });
+  playerData = {
+    ...playerData,
+    ...payload
+  };
+};
+
+const backToWorld = () => {
+  currentScene = "world";
+  levelShell.hidden = true;
+  worldShell.hidden = false;
+  activeLevel = null;
+  selectedChoiceId = null;
+  setStatus("กลับสู่แผนที่แล้ว เดินหาด่านต่อได้เลย");
+};
+
+const submitAnswer = async () => {
+  if (!activeLevel?.challenge) return;
+
+  if (!selectedChoiceId) {
+    setLevelFeedback("ยังไม่ได้ชนคำตอบนะ ลองเดินไปชนคำตอบก่อน", true);
+    return;
+  }
+
+  const isCorrect = selectedChoiceId === activeLevel.challenge.correctChoiceId;
+
+  if (!isCorrect) {
+    setLevelFeedback(activeLevel.challenge.failMessage, true);
+    return;
+  }
+
+  submitAnswerBtn.disabled = true;
+  try {
+    await saveProgress(activeLevel);
+    setLevelFeedback(activeLevel.challenge.successMessage);
+    setStatus(`ผ่าน ${activeLevel.name} แล้ว! ปลดล็อกด่านถัดไปสำเร็จ ✅`);
+  } catch {
+    setLevelFeedback("ผ่านโจทย์แล้ว แต่บันทึกผลไม่สำเร็จ ลองกดตอบใหม่อีกครั้ง", true);
+    submitAnswerBtn.disabled = false;
+    return;
+  }
+
+  window.setTimeout(() => {
+    submitAnswerBtn.disabled = false;
+    backToWorld();
+  }, 1200);
+};
+
+const startLevel = (level) => {
+  if (!level.challenge) {
+    setStatus("ด่านนี้ยังไม่เปิดให้เล่นในเวอร์ชันนี้");
+    closeLevelModal();
+    return;
+  }
+
+  activeLevel = level;
+  selectedChoiceId = null;
+  levelSceneTitle.textContent = level.name;
+  levelSceneQuestion.textContent = level.challenge.question;
+  setLevelFeedback("เดินชนคำตอบ แล้วกดปุ่มตอบ");
+  submitAnswerBtn.disabled = false;
+
+  levelArena.innerHTML = "";
+  level.challenge.choices.forEach((choice) => {
+    levelArena.appendChild(createAnswerNode(choice));
+  });
+
+  levelHero.x = 50;
+  levelHero.y = 84;
+  levelHero.el = createHeroNode("level-hero");
+  levelArena.appendChild(levelHero.el);
+  updateLevelHeroPosition();
+
+  closeLevelModal(false);
+  currentScene = "level";
+  worldShell.hidden = true;
+  levelShell.hidden = false;
 };
 
 const bindControls = () => {
@@ -224,13 +365,15 @@ const bindControls = () => {
 
   startLevelBtn.addEventListener("click", () => {
     if (!activeLevel || startLevelBtn.disabled) return;
-    setStatus(`เลือก ${activeLevel.name} แล้ว (ยังไม่เปิดระบบด่านเต็ม)`);
-    closeLevelModal();
+    startLevel(activeLevel);
   });
+
+  submitAnswerBtn.addEventListener("click", submitAnswer);
+  backToWorldBtn.addEventListener("click", backToWorld);
 };
 
 const renderWorld = () => {
-  levels.forEach((level) => {
+  WORLD_LEVELS.forEach((level) => {
     worldMap.appendChild(createLevelNode(level));
   });
 
@@ -255,8 +398,8 @@ const loadPlayer = async (uid) => {
 const init = async () => {
   try {
     setStatus("กำลังโหลดโปรไฟล์ผู้เล่น...");
-    const user = await ensureUser();
-    playerData = await loadPlayer(user.uid);
+    currentUser = await ensureUser();
+    playerData = await loadPlayer(currentUser.uid);
 
     if (!playerData?.playerName || !playerData?.playerCode) {
       window.location.href = "./setup.html";

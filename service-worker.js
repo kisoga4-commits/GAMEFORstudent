@@ -1,9 +1,10 @@
-const CACHE_NAME = "forkid-pwa-v2";
+const CACHE_NAME = "forkid-pwa-v3";
 const CORE_ASSETS = [
   "./",
   "./index.html",
   "./styles.css",
   "./app.js",
+  "./level-data.js",
   "./firebase-config.js",
   "./manifest.webmanifest",
   "./icons/icon-192.svg",
