@@ -8,12 +8,39 @@
   </head>
   <body>
     <main class="container">
-      <section class="card">
-        <h1>Lobby</h1>
-        <p>ล็อกอินสำเร็จแล้ว (Step 1)</p>
-        <p>Step ถัดไปจะเพิ่มจำนวนคนออนไลน์แบบ realtime จาก Realtime Database</p>
-        <a class="link-btn" href="./index.html">กลับหน้าเข้าเกม</a>
+      <section class="card lobby-card">
+        <h1>🎮 Maze Kids Lobby</h1>
+        <p class="subtitle">พร้อมผจญภัยไปกับเพื่อน ๆ!</p>
+
+        <div class="player-panel">
+          <p><strong>ชื่อตัวละคร:</strong> <span id="playerName">-</span></p>
+          <p><strong>Rank:</strong> <span id="playerRank">-</span></p>
+          <p><strong>Coins:</strong> <span id="playerCoins">0</span></p>
+          <p><strong>Current Level:</strong> <span id="playerLevel">1</span></p>
+        </div>
+
+        <div class="online-panel">
+          <p>🟢 ออนไลน์ทั้งหมด: <strong id="onlineTotal">0</strong></p>
+          <p>🏠 ออนไลน์ใน Lobby: <strong id="onlineLobby">0</strong></p>
+        </div>
+
+        <div class="button-group">
+          <button id="startLevelBtn" type="button">เริ่มเล่นด่าน</button>
+          <button id="queueDuelBtn" type="button" class="alt-btn">รอดวล</button>
+          <button id="logoutBtn" type="button" class="danger-btn">ออกจากระบบ</button>
+        </div>
+
+        <section class="online-list-panel" aria-live="polite">
+          <h2>รายชื่อคนออนไลน์</h2>
+          <ul id="onlineList" class="online-list">
+            <li class="online-empty">กำลังโหลด...</li>
+          </ul>
+        </section>
+
+        <p id="statusMessage" class="status" aria-live="polite"></p>
       </section>
     </main>
+
+    <script type="module" src="../src/js/lobby.js"></script>
   </body>
 </html>
