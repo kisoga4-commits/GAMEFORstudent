@@ -33,6 +33,12 @@ body {
   padding: 10px;
 }
 
+.level-shell {
+  background:
+    radial-gradient(circle at 85% 12%, #fbcfe8 0 14%, transparent 15%),
+    linear-gradient(180deg, #bae6fd 0%, #c4b5fd 35%, #a7f3d0 100%);
+}
+
 .world-header {
   background: rgb(255 255 255 / 0.85);
   border-radius: 18px;
@@ -87,6 +93,19 @@ h1 {
     radial-gradient(circle at 80% 25%, #86efac 0 20%, #4ade80 21% 40%, transparent 41%),
     radial-gradient(circle at 72% 72%, #22d3ee 0 14%, #38bdf8 15% 24%, transparent 25%),
     linear-gradient(180deg, #d9f99d 0%, #86efac 100%);
+}
+
+.level-arena {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 3px solid rgb(255 255 255 / 0.75);
+  background:
+    radial-gradient(circle at 25% 82%, #fde68a 0 15%, #fcd34d 16% 26%, transparent 27%),
+    radial-gradient(circle at 75% 82%, #93c5fd 0 15%, #60a5fa 16% 26%, transparent 27%),
+    linear-gradient(180deg, #f0f9ff 0%, #dbeafe 40%, #bbf7d0 100%);
 }
 
 .map-path {
@@ -161,6 +180,27 @@ h1 {
   color: #7c2d12;
 }
 
+.answer-node {
+  position: absolute;
+  z-index: 3;
+  transform: translate(-50%, -50%);
+  min-width: 88px;
+  border: 0;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 0 0 4px #f59e0b;
+  display: grid;
+  justify-items: center;
+  padding: 8px 6px;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #7c2d12;
+}
+
+.answer-node.active {
+  box-shadow: 0 0 0 5px #10b981;
+}
+
 .hero {
   position: absolute;
   z-index: 4;
@@ -173,6 +213,11 @@ h1 {
   display: grid;
   place-items: center;
   box-shadow: 0 8px 16px rgb(30 64 175 / 0.45);
+}
+
+.hero.level-hero {
+  background: #ec4899;
+  box-shadow: 0 8px 16px rgb(190 24 93 / 0.45);
 }
 
 .hero-face {
@@ -201,6 +246,10 @@ h1 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
+}
+
+.level-actions {
+  align-content: start;
 }
 
 .move-btn {

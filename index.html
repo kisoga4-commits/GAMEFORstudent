@@ -14,7 +14,7 @@
     />
   </head>
   <body class="world-page">
-    <main class="world-shell" aria-label="แผนที่โลกหลักของเกม">
+    <main id="worldShell" class="world-shell" aria-label="แผนที่โลกหลักของเกม">
       <header class="world-header">
         <p class="chip">🎮 เกมผจญภัยเด็ก</p>
         <h1 id="playerGreeting">สวัสดี นักผจญภัย</h1>
@@ -38,6 +38,36 @@
 
       <section class="controls" aria-label="ปุ่มบังคับเดินบนมือถือ">
         <p class="controls-title">บังคับเดิน: ลูกศร/WASD หรือปุ่มด้านล่าง</p>
+        <button type="button" class="move-btn" data-dir="up" aria-label="เดินขึ้น">▲</button>
+        <div class="controls-row">
+          <button type="button" class="move-btn" data-dir="left" aria-label="เดินซ้าย">◀</button>
+          <button type="button" class="move-btn" data-dir="down" aria-label="เดินลง">▼</button>
+          <button type="button" class="move-btn" data-dir="right" aria-label="เดินขวา">▶</button>
+        </div>
+      </section>
+    </main>
+
+    <main id="levelShell" class="world-shell level-shell" aria-label="หน้าด่าน" hidden>
+      <header class="world-header">
+        <p class="chip">🧠 ด่านฝึกคิด</p>
+        <h1 id="levelSceneTitle">ด่านแรก</h1>
+        <p id="levelSceneQuestion" class="world-status">กำลังโหลดโจทย์...</p>
+      </header>
+
+      <section class="map-frame" aria-label="สนามเลือกคำตอบ">
+        <div id="levelArena" class="level-arena"></div>
+      </section>
+
+      <section class="controls level-actions" aria-label="ปุ่มตอบคำถาม">
+        <p id="levelFeedback" class="controls-title">เดินชนคำตอบ แล้วกดปุ่มตอบ</p>
+        <div class="modal-actions">
+          <button id="submitAnswerBtn" type="button" class="primary">ตอบคำตอบนี้</button>
+          <button id="backToWorldBtn" type="button" class="secondary">กลับแผนที่</button>
+        </div>
+      </section>
+
+      <section class="controls" aria-label="ปุ่มบังคับเดินในด่าน">
+        <p class="controls-title">บังคับเดินเพื่อตอบ: ลูกศร/WASD หรือปุ่มด้านล่าง</p>
         <button type="button" class="move-btn" data-dir="up" aria-label="เดินขึ้น">▲</button>
         <div class="controls-row">
           <button type="button" class="move-btn" data-dir="left" aria-label="เดินซ้าย">◀</button>
