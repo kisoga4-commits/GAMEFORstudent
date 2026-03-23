@@ -3,33 +3,296 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ForKid</title>
-    <meta name="theme-color" content="#7c3aed" />
+    <title>ForKid PWA</title>
+    <meta name="theme-color" content="#4f46e5" />
     <link rel="manifest" href="./manifest.webmanifest" />
-    <link rel="icon" href="./icons/icon-192.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="./icons/icon-512.svg" />
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='50' font-size='48'%3E%F0%9F%8E%AE%3C/text%3E%3C/svg%3E" />
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        --bg: #f5f7ff;
+        --card: #ffffff;
+        --text: #111827;
+        --primary: #4f46e5;
+        --primary-dark: #4338ca;
+        --line: #d1d5db;
+        --ok: #065f46;
+        --err: #b91c1c;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(180deg, #eef2ff 0%, var(--bg) 100%);
+        color: var(--text);
+      }
+
+      main {
+        width: min(92vw, 360px);
+        background: var(--card);
+        border: 1px solid #e5e7eb;
+        border-radius: 18px;
+        padding: 18px;
+        box-shadow: 0 8px 24px rgb(17 24 39 / 0.08);
+      }
+
+      h1 {
+        margin: 0 0 14px;
+        text-align: center;
+        font-size: 1.2rem;
+      }
+
+      form {
+        display: grid;
+        gap: 10px;
+      }
+
+      .field {
+        display: grid;
+        gap: 6px;
+      }
+
+      label {
+        font-size: 0.92rem;
+        font-weight: 600;
+      }
+
+      input {
+        height: 42px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 0 12px;
+        font-size: 1rem;
+      }
+
+      input:focus {
+        outline: 2px solid #c7d2fe;
+        border-color: #a5b4fc;
+      }
+
+      .actions {
+        display: grid;
+        gap: 8px;
+      }
+
+      button {
+        height: 42px;
+        border: 0;
+        border-radius: 10px;
+        background: var(--primary);
+        color: #fff;
+        font-size: 0.98rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: var(--primary-dark);
+      }
+
+      button[hidden] {
+        display: none;
+      }
+
+      #status {
+        margin: 10px 0 0;
+        min-height: 1.2em;
+        text-align: center;
+        font-size: 0.92rem;
+        font-weight: 600;
+        color: var(--ok);
+      }
+
+      #status.error {
+        color: var(--err);
+      }
+    </style>
   </head>
   <body>
-    <main class="app">
-      <section class="card" aria-label="ฟอร์มข้อมูลผู้เล่น">
-        <h1>ForKid</h1>
-
-        <form id="profileForm" novalidate>
-          <label for="playerName" aria-label="ชื่อผู้เล่น">👤</label>
-          <input id="playerName" name="playerName" type="text" minlength="2" maxlength="30" placeholder="ชื่อ" required />
-
-          <label for="playerCode" aria-label="รหัสผู้เล่น">🔐</label>
-          <input id="playerCode" name="playerCode" type="text" minlength="2" maxlength="30" placeholder="รหัส" required />
-
-          <button type="submit" id="saveBtn">💾 บันทึก</button>
-        </form>
-
-        <button type="button" id="installBtn" class="secondary" hidden>📲 ติดตั้ง</button>
-        <p id="status" aria-live="polite"></p>
-      </section>
+    <main>
+      <h1>🎮 Player Sync</h1>
+      <form id="profileForm" novalidate>
+        <div class="field">
+          <label for="playerName">👤 playerName</label>
+          <input id="playerName" name="playerName" type="text" autocomplete="off" required />
+        </div>
+        <div class="field">
+          <label for="playerCode">🔐 playerCode</label>
+          <input id="playerCode" name="playerCode" type="text" autocomplete="off" required />
+        </div>
+        <div class="actions">
+          <button id="saveBtn" type="submit">💾 บันทึก</button>
+          <button id="installBtn" type="button" hidden>📲 ติดตั้ง</button>
+        </div>
+      </form>
+      <p id="status" aria-live="polite"></p>
     </main>
 
-    <script type="module" src="./app.js"></script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+      import {
+        browserLocalPersistence,
+        getAuth,
+        setPersistence,
+        signInAnonymously
+      } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+      import {
+        doc,
+        getDoc,
+        getFirestore,
+        serverTimestamp,
+        setDoc
+      } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDIv_FzJevOpYa-sZiItQRE0nsOn6HJZgs",
+        authDomain: "forkid-70fb3.firebaseapp.com",
+        projectId: "forkid-70fb3",
+        storageBucket: "forkid-70fb3.firebasestorage.app",
+        messagingSenderId: "966669163384",
+        appId: "1:966669163384:web:cd07ac2e2ce8af29adc68d",
+        measurementId: "G-PN9N8DYL4P"
+      };
+
+      const STATUS = {
+        LOADING: "กำลังโหลด",
+        LOADED: "โหลดแล้ว",
+        SAVING: "กำลังบันทึก",
+        SAVED: "บันทึกแล้ว",
+        ERROR: "ผิดพลาด"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      const form = document.getElementById("profileForm");
+      const playerNameInput = document.getElementById("playerName");
+      const playerCodeInput = document.getElementById("playerCode");
+      const installBtn = document.getElementById("installBtn");
+      const statusEl = document.getElementById("status");
+
+      let deferredPrompt = null;
+      let currentUid = "";
+
+      const setStatus = (message, isError = false) => {
+        statusEl.textContent = message;
+        statusEl.classList.toggle("error", isError);
+      };
+
+      const trimInputs = () => {
+        playerNameInput.value = playerNameInput.value.trim();
+        playerCodeInput.value = playerCodeInput.value.trim();
+      };
+
+      const validateInputs = () => {
+        trimInputs();
+        if (!playerNameInput.value || !playerCodeInput.value) {
+          setStatus(STATUS.ERROR, true);
+          return false;
+        }
+        return true;
+      };
+
+      const loadPlayer = async (uid) => {
+        setStatus(STATUS.LOADING);
+        const ref = doc(db, "players", uid);
+        const snap = await getDoc(ref);
+
+        if (snap.exists()) {
+          const data = snap.data();
+          playerNameInput.value = data.playerName ?? "";
+          playerCodeInput.value = data.playerCode ?? "";
+        } else {
+          playerNameInput.value = "";
+          playerCodeInput.value = "";
+        }
+
+        setStatus(STATUS.LOADED);
+      };
+
+      const ensureAnonymousUser = async () => {
+        if (auth.currentUser?.uid) {
+          return auth.currentUser;
+        }
+        const credential = await signInAnonymously(auth);
+        return credential.user;
+      };
+
+      const savePlayer = async () => {
+        if (!validateInputs()) return;
+
+        setStatus(STATUS.SAVING);
+
+        const user = await ensureAnonymousUser();
+        currentUid = user.uid;
+
+        const ref = doc(db, "players", currentUid);
+        const snap = await getDoc(ref);
+
+        const payload = {
+          uid: currentUid,
+          playerName: playerNameInput.value,
+          playerCode: playerCodeInput.value,
+          createdAt: snap.exists() ? snap.data().createdAt ?? serverTimestamp() : serverTimestamp(),
+          updatedAt: serverTimestamp()
+        };
+
+        await setDoc(ref, payload, { merge: true });
+        setStatus(STATUS.SAVED);
+      };
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        try {
+          await savePlayer();
+        } catch {
+          setStatus(STATUS.ERROR, true);
+        }
+      });
+
+      window.addEventListener("beforeinstallprompt", (event) => {
+        event.preventDefault();
+        deferredPrompt = event;
+        installBtn.hidden = false;
+      });
+
+      installBtn.addEventListener("click", async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        installBtn.hidden = true;
+      });
+
+      window.addEventListener("appinstalled", () => {
+        installBtn.hidden = true;
+      });
+
+      const init = async () => {
+        try {
+          setStatus(STATUS.LOADING);
+          await setPersistence(auth, browserLocalPersistence);
+          const user = await ensureAnonymousUser();
+          currentUid = user.uid;
+          await loadPlayer(currentUid);
+
+          if ("serviceWorker" in navigator) {
+            await navigator.serviceWorker.register("./service-worker.js");
+          }
+        } catch {
+          setStatus(STATUS.ERROR, true);
+        }
+      };
+
+      init();
+    </script>
   </body>
 </html>
