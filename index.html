@@ -3,9 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ForKid Cloud Sync</title>
+    <title>ForKid</title>
     <meta name="theme-color" content="#2563eb" />
-    <meta name="description" content="บันทึกข้อมูลผู้เล่นและซิงก์ขึ้น Cloud Firestore" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icons/icon-192.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icons/icon-512.svg" />
@@ -14,20 +13,19 @@
   <body>
     <main class="app">
       <section class="card" aria-label="ฟอร์มข้อมูลผู้เล่น">
-        <h1>เข้าใช้งาน</h1>
-        <p class="subtitle">กรอกข้อมูลเพื่อบันทึกขึ้น Cloud Sync</p>
+        <h1>ForKid</h1>
 
         <form id="profileForm" novalidate>
-          <label for="playerName">playerName</label>
+          <label for="playerName">👤 playerName</label>
           <input id="playerName" name="playerName" type="text" minlength="2" maxlength="30" required />
 
-          <label for="playerCode">playerCode</label>
+          <label for="playerCode">🔐 playerCode</label>
           <input id="playerCode" name="playerCode" type="text" minlength="2" maxlength="30" required />
 
-          <button type="submit" id="saveBtn">บันทึกและเข้าใช้งาน</button>
+          <button type="submit" id="saveBtn">💾 บันทึกข้อมูล</button>
         </form>
 
-        <button type="button" id="installBtn" class="secondary" hidden>ติดตั้งแอป</button>
+        <button type="button" id="installBtn" class="secondary" hidden>⬇️ ติดตั้งแอป (Install)</button>
         <p id="status" aria-live="polite"></p>
       </section>
     </main>

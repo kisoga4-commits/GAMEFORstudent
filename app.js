@@ -1,15 +1,17 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import {
+  browserLocalPersistence,
   getAuth,
-  signInAnonymously,
-  onAuthStateChanged
+  onAuthStateChanged,
+  setPersistence,
+  signInAnonymously
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import {
-  getFirestore,
   doc,
   getDoc,
-  setDoc,
-  serverTimestamp
+  getFirestore,
+  serverTimestamp,
+  setDoc
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { firebaseConfig } from "./firebase-config.js";
 
@@ -32,77 +34,60 @@ const setStatus = (message, isError = false) => {
 };
 
 const fillForm = (data) => {
-  if (!data) return;
-  playerNameInput.value = data.playerName || "";
-  playerCodeInput.value = data.playerCode || "";
-};
-
-const getLocalKey = (uid) => `forkid-profile-${uid}`;
-
-const saveLocal = (uid, payload) => {
-  localStorage.setItem(getLocalKey(uid), JSON.stringify(payload));
-};
-
-const readLocal = (uid) => {
-  const raw = localStorage.getItem(getLocalKey(uid));
-  if (!raw) return null;
-
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
+  playerNameInput.value = data?.playerName ?? "";
+  playerCodeInput.value = data?.playerCode ?? "";
 };
 
 const loadProfile = async (uid) => {
-  const localData = readLocal(uid);
-  if (localData) {
-    fillForm(localData);
-    setStatus("โหลดข้อมูลล่าสุดจากเครื่องแล้ว");
-  }
-
   const ref = doc(db, "players", uid);
   const snap = await getDoc(ref);
 
   if (snap.exists()) {
-    const cloudData = snap.data();
-    fillForm(cloudData);
-    saveLocal(uid, cloudData);
-    setStatus("โหลดข้อมูลจาก Cloud Firestore สำเร็จ");
-  } else if (!localData) {
-    setStatus("ยังไม่มีข้อมูลเดิม เริ่มกรอกข้อมูลได้เลย");
-  }
-};
-
-const saveProfile = async (uid) => {
-  const payload = {
-    playerName: playerNameInput.value.trim(),
-    playerCode: playerCodeInput.value.trim(),
-    updatedAt: serverTimestamp()
-  };
-
-  if (!payload.playerName || !payload.playerCode) {
-    setStatus("กรุณากรอกข้อมูลให้ครบ", true);
+    fillForm(snap.data());
+    setStatus("✅ โหลดข้อมูลสำเร็จ");
     return;
   }
 
-  await setDoc(doc(db, "players", uid), payload, { merge: true });
-  saveLocal(uid, { playerName: payload.playerName, playerCode: payload.playerCode });
-  setStatus("บันทึกข้อมูลและซิงก์ขึ้น Cloud แล้ว");
+  fillForm({ playerName: "", playerCode: "" });
+};
+
+const saveProfile = async (uid) => {
+  const playerName = playerNameInput.value.trim();
+  const playerCode = playerCodeInput.value.trim();
+
+  if (!playerName || !playerCode) {
+    setStatus("⚠️ เกิดข้อผิดพลาด", true);
+    return;
+  }
+
+  setStatus("⏳ กำลังบันทึก...");
+
+  const ref = doc(db, "players", uid);
+  const snap = await getDoc(ref);
+  const payload = {
+    uid,
+    playerName,
+    playerCode,
+    createdAt: snap.exists() ? snap.data().createdAt ?? serverTimestamp() : serverTimestamp(),
+    updatedAt: serverTimestamp()
+  };
+
+  await setDoc(ref, payload, { merge: true });
+  setStatus("✅ บันทึกสำเร็จ");
 };
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   if (!currentUid) {
-    setStatus("กำลังเชื่อมต่อบัญชีผู้ใช้ กรุณาลองอีกครั้ง", true);
+    setStatus("⚠️ เกิดข้อผิดพลาด", true);
     return;
   }
 
   try {
     await saveProfile(currentUid);
-  } catch (error) {
-    setStatus(`บันทึกไม่สำเร็จ: ${error.message}`, true);
+  } catch {
+    setStatus("⚠️ เกิดข้อผิดพลาด", true);
   }
 });
 
@@ -113,23 +98,26 @@ onAuthStateChanged(auth, async (user) => {
 
   try {
     await loadProfile(user.uid);
-  } catch (error) {
-    setStatus(`โหลดข้อมูลไม่สำเร็จ: ${error.message}`, true);
+  } catch {
+    setStatus("⚠️ เกิดข้อผิดพลาด", true);
   }
 });
 
 const init = async () => {
   try {
-    await signInAnonymously(auth);
-  } catch (error) {
-    setStatus(`Anonymous Auth ล้มเหลว: ${error.message}`, true);
+    await setPersistence(auth, browserLocalPersistence);
+    if (!auth.currentUser) {
+      await signInAnonymously(auth);
+    }
+  } catch {
+    setStatus("⚠️ เกิดข้อผิดพลาด", true);
   }
 
   if ("serviceWorker" in navigator) {
     try {
       await navigator.serviceWorker.register("./service-worker.js");
-    } catch (error) {
-      setStatus(`Service Worker ติดตั้งไม่สำเร็จ: ${error.message}`, true);
+    } catch {
+      setStatus("⚠️ เกิดข้อผิดพลาด", true);
     }
   }
 };
@@ -150,7 +138,6 @@ installBtn.addEventListener("click", async () => {
 });
 
 window.addEventListener("appinstalled", () => {
-  setStatus("ติดตั้งแอปสำเร็จ");
   installBtn.hidden = true;
 });
 
