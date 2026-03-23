@@ -30,7 +30,7 @@ src/js/
 3. สร้าง Firestore Database
 4. ใส่ค่า Firebase config จริงใน `src/js/config/firebase-config.js`
 5. เสิร์ฟไฟล์ด้วย static server (เช่น `npx serve .`)
-6. เปิด `http://localhost:3000/public/`
+6. เปิด `http://localhost:3000/` (entry point หลักอยู่ที่ root `index.html`)
 
 ## Firestore collection: `levels`
 
