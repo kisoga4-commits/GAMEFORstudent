@@ -1,0 +1,2 @@
+# Generated binary artifacts should not be tracked
+generated/binary/

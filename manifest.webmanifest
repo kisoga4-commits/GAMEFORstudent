@@ -1,7 +1,7 @@
 {
   "name": "ForKid Cloud Sync",
   "short_name": "ForKid",
-  "start_url": "./index.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#eff6ff",

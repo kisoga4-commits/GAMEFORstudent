@@ -1,4 +1,4 @@
-const CACHE_NAME = "forkid-pwa-v1";
+const CACHE_NAME = "forkid-pwa-v2";
 const CORE_ASSETS = [
   "./",
   "./index.html",
