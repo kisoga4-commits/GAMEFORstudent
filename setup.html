@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ตั้งชื่อนักผจญภัย</title>
+    <meta name="theme-color" content="#4f46e5" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body class="setup-page">
+    <main class="setup-shell">
+      <h1>🧒 ตั้งค่าผู้เล่นก่อนผจญภัย</h1>
+      <form id="profileForm" novalidate>
+        <label for="playerName">ชื่อนักผจญภัย</label>
+        <input id="playerName" name="playerName" type="text" autocomplete="off" required />
+
+        <label for="playerCode">รหัสผู้เล่น</label>
+        <input id="playerCode" name="playerCode" type="text" autocomplete="off" required />
+
+        <button id="saveBtn" type="submit">เริ่มเกม</button>
+      </form>
+      <p id="status" aria-live="polite"></p>
+    </main>
+
+    <script type="module" src="./setup.js"></script>
+  </body>
+</html>
