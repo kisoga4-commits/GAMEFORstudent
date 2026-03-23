@@ -3,7 +3,8 @@ import {
   browserLocalPersistence,
   getAuth,
   setPersistence,
-  signInAnonymously
+  signInAnonymously,
+  signOut
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import {
   doc,
@@ -22,6 +23,7 @@ const form = document.getElementById("profileForm");
 const playerNameInput = document.getElementById("playerName");
 const playerCodeInput = document.getElementById("playerCode");
 const statusEl = document.getElementById("status");
+const logoutBtn = document.getElementById("logoutBtn");
 
 const setStatus = (message, isError = false) => {
   statusEl.textContent = message;
@@ -91,6 +93,19 @@ const init = async () => {
         await saveProfile(user.uid);
       } catch {
         setStatus("บันทึกไม่สำเร็จ ลองใหม่อีกครั้ง", true);
+      }
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      setStatus("กำลังออกจากระบบ...");
+      logoutBtn.disabled = true;
+      try {
+        await signOut(auth);
+        setStatus("ออกจากระบบแล้ว กำลังรีเซ็ตหน้าจอ...");
+        window.location.reload();
+      } catch {
+        setStatus("ออกจากระบบไม่สำเร็จ ลองใหม่อีกครั้ง", true);
+        logoutBtn.disabled = false;
       }
     });
   } catch {

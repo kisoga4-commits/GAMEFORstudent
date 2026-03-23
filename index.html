@@ -16,9 +16,13 @@
   <body class="world-page">
     <main id="worldShell" class="world-shell" aria-label="แผนที่โลกหลักของเกม">
       <header class="world-header">
-        <p class="chip">🎮 เกมผจญภัยเด็ก</p>
+        <div class="header-top">
+          <p class="chip">🎮 เกมผจญภัยเด็ก</p>
+          <button id="logoutBtn" type="button" class="secondary danger">Logout</button>
+        </div>
         <h1 id="playerGreeting">สวัสดี นักผจญภัย</h1>
         <p id="worldStatus" class="world-status" aria-live="polite">กำลังโหลดโลกหลัก...</p>
+        <p class="save-hint">💾 ระบบจะบันทึกอัตโนมัติเมื่อทำภารกิจในด่านสำเร็จ</p>
       </header>
 
       <section class="map-frame" aria-label="แผนที่โลก">
