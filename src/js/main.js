@@ -8,6 +8,7 @@ const playerCodeInput = document.getElementById("playerCode");
 const submitBtn = document.getElementById("submitBtn");
 const installBtn = document.getElementById("installBtn");
 const statusMessage = document.getElementById("statusMessage");
+const goLobbyBtn = document.getElementById("goLobbyBtn");
 
 let deferredInstallPrompt = null;
 
@@ -45,6 +46,11 @@ loginForm?.addEventListener("submit", async (event) => {
     });
 
     setStatus(`บันทึกสำเร็จ (uid: ${user.uid.slice(0, 8)}...)`, false);
+    goLobbyBtn.hidden = false;
+
+    setTimeout(() => {
+      window.location.href = "./lobby.html";
+    }, 450);
   } catch (error) {
     console.error(error);
     setStatus("เกิดข้อผิดพลาดในการบันทึก โปรดลองอีกครั้ง", true);
@@ -65,6 +71,7 @@ async function initializeForm() {
       playerNameInput.value = profile.playerName || "";
       playerCodeInput.value = profile.playerCode || "";
       setStatus("โหลดข้อมูลเดิมจาก Cloud แล้ว");
+      goLobbyBtn.hidden = false;
       return;
     }
 
@@ -88,7 +95,7 @@ function setupInstallPrompt() {
     installBtn.hidden = false;
   });
 
-  installBtn?.addEventListener("click", async () => {
+installBtn?.addEventListener("click", async () => {
     if (!deferredInstallPrompt) {
       setStatus("อุปกรณ์นี้ยังไม่พร้อมติดตั้ง PWA", true);
       return;
@@ -98,6 +105,10 @@ function setupInstallPrompt() {
     await deferredInstallPrompt.userChoice;
     deferredInstallPrompt = null;
     installBtn.hidden = true;
+  });
+
+  goLobbyBtn?.addEventListener("click", () => {
+    window.location.href = "./lobby.html";
   });
 }
 
