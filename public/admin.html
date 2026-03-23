@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Maze Kids - Admin Levels</title>
+    <link rel="stylesheet" href="../src/css/styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <section class="card card-admin">
+        <p class="badge">🛠️ Level Admin</p>
+        <h1>Admin - จัดการด่าน</h1>
+        <p class="subtitle">เพิ่ม/แก้ไขด่านใน Firestore โดยตรงได้จากในเกม</p>
+
+        <form id="levelForm" class="form" autocomplete="off">
+          <label for="levelId">levelId (document id)</label>
+          <input id="levelId" name="levelId" type="text" placeholder="เช่น level-01" required />
+
+          <label for="order">ลำดับด่าน</label>
+          <input id="order" name="order" type="number" min="1" placeholder="เช่น 1" required />
+
+          <label for="title">ชื่อด่าน</label>
+          <input id="title" name="title" type="text" placeholder="เช่น บวกเลขหลักเดียว" required />
+
+          <label for="description">คำอธิบาย</label>
+          <input id="description" name="description" type="text" placeholder="คำอธิบายด่าน" />
+
+          <label for="question">โจทย์</label>
+          <input id="question" name="question" type="text" placeholder="เช่น 3 + 4 = ?" required />
+
+          <label for="answer">คำตอบ</label>
+          <input id="answer" name="answer" type="text" placeholder="เช่น 7" required />
+
+          <label class="check-row" for="isPublished">
+            <input id="isPublished" name="isPublished" type="checkbox" checked />
+            เผยแพร่ด่าน (ให้ scene เกมเห็น)
+          </label>
+
+          <button type="submit">บันทึกด่าน</button>
+        </form>
+
+        <div class="action-row">
+          <button id="refreshBtn" type="button" class="btn-secondary">รีเฟรชรายการด่าน</button>
+          <a class="link-btn link-btn-secondary" href="./game.html">กลับหน้า Game Scene</a>
+        </div>
+
+        <section class="table-wrap" aria-label="รายการด่านทั้งหมด">
+          <table class="levels-table">
+            <thead>
+              <tr>
+                <th>levelId</th>
+                <th>Order</th>
+                <th>Title</th>
+                <th>Question</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="levelsTableBody"></tbody>
+          </table>
+        </section>
+
+        <p id="statusMessage" class="status" role="status" aria-live="polite"></p>
+      </section>
+    </main>
+
+    <script type="module" src="../src/js/admin.js"></script>
+  </body>
+</html>

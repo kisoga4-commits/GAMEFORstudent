@@ -11,7 +11,7 @@
       <section class="card card-lobby">
         <p class="badge">🕹️ พร้อมดวล</p>
         <h1>Lobby</h1>
-        <p class="subtitle">เข้าคิวรอดวลแบบ realtime จาก Firebase Realtime Database</p>
+        <p class="subtitle">เข้าคิวรอดวลแบบ realtime และเข้าเกมที่โหลดด่านจาก Firestore</p>
 
         <div class="stats-grid" aria-label="สถิติผู้เล่น">
           <article class="stat-item">
@@ -43,7 +43,10 @@
         </section>
 
         <p id="statusMessage" class="status" role="status" aria-live="polite"></p>
-        <a class="link-btn link-btn-secondary" href="./index.html">กลับหน้าเข้าเกม</a>
+        <div class="action-row">
+          <a class="link-btn" href="./game.html">เข้า Game Scene</a>
+          <a class="link-btn link-btn-secondary" href="./index.html">กลับหน้าเข้าเกม</a>
+        </div>
       </section>
     </main>
 

@@ -223,3 +223,68 @@ button:disabled {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+select {
+  width: 100%;
+  font: inherit;
+  border-radius: 12px;
+  padding: 0.78rem;
+  border: 1px solid #475569;
+  background: #0b1220;
+  color: #f8fafc;
+}
+
+code {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 0.1rem 0.35rem;
+}
+
+.card-game,
+.card-admin {
+  width: min(100%, 760px);
+  display: grid;
+  gap: 0.8rem;
+}
+
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.check-row input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
+.table-wrap {
+  border: 1px solid #334155;
+  border-radius: 14px;
+  overflow-x: auto;
+}
+
+.levels-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.levels-table th,
+.levels-table td {
+  border-bottom: 1px solid #334155;
+  padding: 0.55rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.levels-table th {
+  color: #bbf7d0;
+}
+
+.table-empty {
+  color: #94a3b8;
+  text-align: center !important;
+}
