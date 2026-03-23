@@ -1,6 +1,6 @@
 :root {
-  color-scheme: light dark;
-  font-family: "Noto Sans Thai", system-ui, sans-serif;
+  font-family: "Noto Sans Thai", "Kanit", system-ui, sans-serif;
+  color-scheme: dark;
 }
 
 * {
@@ -10,7 +10,8 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: #0f172a;
+  background:
+    radial-gradient(circle at top, #1e293b 0%, #0f172a 38%, #020617 100%);
   color: #e2e8f0;
 }
 
@@ -22,15 +23,40 @@ body {
 }
 
 .card {
-  width: min(100%, 420px);
-  background: #1e293b;
-  border: 1px solid #334155;
-  border-radius: 16px;
-  padding: 1rem;
+  width: min(100%, 460px);
+  background: linear-gradient(160deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 20px;
+  padding: 1.3rem;
+  box-shadow: 0 16px 35px rgba(2, 6, 23, 0.4);
+  backdrop-filter: blur(3px);
+}
+
+.card-login {
+  border-top: 3px solid #22c55e;
+}
+
+h1 {
+  margin: 0.2rem 0 0.35rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  border: 1px solid #22c55e66;
+  background: #22c55e1a;
+  color: #bbf7d0;
+  border-radius: 999px;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.8rem;
+  font-weight: 700;
 }
 
 .subtitle {
-  color: #94a3b8;
+  margin-top: 0;
+  color: #cbd5e1;
+  line-height: 1.45;
 }
 
 .form {
@@ -39,30 +65,72 @@ body {
 }
 
 label {
-  margin-top: 0.5rem;
+  margin-top: 0.35rem;
+  color: #e2e8f0;
+  font-weight: 600;
 }
 
 input,
 button,
 .link-btn {
   font: inherit;
-  border-radius: 10px;
-  padding: 0.75rem;
+  border-radius: 12px;
+  padding: 0.78rem;
   border: 1px solid #475569;
+}
+
+input {
+  background: #0b1220;
+  color: #f8fafc;
+}
+
+input:focus {
+  outline: none;
+  border-color: #22c55e;
+  box-shadow: 0 0 0 3px #22c55e33;
 }
 
 button,
 .link-btn {
   margin-top: 0.75rem;
-  background: #22c55e;
+  background: linear-gradient(180deg, #4ade80 0%, #22c55e 100%);
   color: #052e16;
   border: none;
-  font-weight: 700;
+  font-weight: 800;
   text-align: center;
   text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.14s ease, filter 0.14s ease;
+}
+
+button:hover,
+.link-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+}
+
+button:disabled {
+  opacity: 0.75;
+  cursor: wait;
 }
 
 .status {
   min-height: 1.5rem;
   margin-top: 0.75rem;
+  font-weight: 600;
+}
+
+.status-success {
+  color: #86efac;
+}
+
+.status-error {
+  color: #fda4af;
+}
+
+.helper-text {
+  margin-bottom: 0;
+  color: #94a3b8;
+  font-size: 0.9rem;
+  line-height: 1.4;
 }

@@ -4,7 +4,7 @@
 
 - โครงสร้างโปรเจกต์ที่ขยายต่อได้
 - หน้าเข้าเกม (Landing + แบบฟอร์ม)
-- เชื่อม Firebase (Anonymous Auth + Firestore)
+- เชื่อม Firebase (Anonymous Auth + Firestore + Analytics)
 - โครงสร้าง PWA เบื้องต้น (manifest + service worker)
 
 ## โครงสร้าง
@@ -20,6 +20,7 @@ src/
   js/
     main.js
     firebase.js
+    config/firebase-config.js
     config/firebase.example.js
     services/
       auth.js
@@ -31,12 +32,13 @@ src/
 1. สร้าง Firebase Project
 2. เปิดใช้งาน Anonymous Authentication
 3. สร้าง Firestore Database
-4. คัดลอก `src/js/config/firebase.example.js` เป็น `src/js/config/firebase.config.js`
-5. เติมค่า Firebase config จริง
+4. (ถ้าต้องการ template) ใช้ `src/js/config/firebase.example.js`
+5. ใส่ค่า Firebase config จริงใน `src/js/config/firebase-config.js`
 6. เสิร์ฟไฟล์ด้วย static server (เช่น `npx serve .`)
 7. เปิด `http://localhost:3000/public/`
 
 ## หมายเหตุ
 
 - ใน Step ถัดไปจะเพิ่ม Realtime Database สำหรับจำนวนคนออนไลน์และระบบ lobby/queue แบบ realtime
+- มีการ hash รหัสผู้เล่นก่อนบันทึกลง Firestore เพื่อลดการเก็บรหัสแบบ plain text
 - ไฟล์นี้เป็น MVP เพื่อให้เริ่มพัฒนาแบบ incremental ได้ง่าย
