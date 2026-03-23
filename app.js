@@ -112,12 +112,24 @@ const createHeroNode = (extraClass = "") => {
 };
 
 const createAnswerNode = (choice) => {
-  const answerNode = document.createElement("div");
+  const answerNode = document.createElement("button");
+  answerNode.type = "button";
   answerNode.className = "answer-node";
   answerNode.dataset.choiceId = choice.id;
   answerNode.style.left = `${choice.x}%`;
   answerNode.style.top = `${choice.y}%`;
   answerNode.textContent = choice.label;
+  answerNode.setAttribute("aria-label", `คำตอบ ${choice.label}`);
+  answerNode.addEventListener("click", () => {
+    selectedChoiceId = choice.id;
+    markSelectedChoice();
+    console.debug("[level] answer selected", {
+      levelId: activeLevel?.id ?? null,
+      choiceId: choice.id,
+      choiceLabel: choice.label
+    });
+    setLevelFeedback(`เลือกคำตอบ: ${choice.label}`);
+  });
   return answerNode;
 };
 
@@ -227,7 +239,12 @@ const checkAnswerCollision = () => {
   markSelectedChoice();
 
   if (selectedChoiceId) {
-    setLevelFeedback(`เลือกคำตอบ: ${hitChoice.label} แล้ว กดปุ่มตอบได้เลย`);
+    console.debug("[level] answer selected", {
+      levelId: activeLevel?.id ?? null,
+      choiceId: hitChoice.id,
+      choiceLabel: hitChoice.label
+    });
+    setLevelFeedback(`เลือกคำตอบ: ${hitChoice.label}`);
   }
 };
 
@@ -289,6 +306,10 @@ const saveProgress = async (level) => {
     unlockedLevels: nextUnlocked,
     completedLevels: Array.from(completedLevels)
   });
+  console.debug("[level] progress saved", {
+    levelId: level.id,
+    unlockedLevels: nextUnlocked
+  });
 };
 
 const backToWorld = () => {
@@ -304,21 +325,30 @@ const submitAnswer = async () => {
   if (!activeLevel?.challenge) return;
 
   if (!selectedChoiceId) {
-    setLevelFeedback("ยังไม่ได้ชนคำตอบนะ ลองเดินไปชนคำตอบก่อน", true);
+    setLevelFeedback("ยังไม่ได้เลือกคำตอบ ลองแตะตัวเลือกก่อน", true);
     return;
   }
 
   const isCorrect = selectedChoiceId === activeLevel.challenge.correctChoiceId;
 
   if (!isCorrect) {
+    console.debug("[level] wrong answer", {
+      levelId: activeLevel.id,
+      selectedChoiceId
+    });
     setLevelFeedback(activeLevel.challenge.failMessage, true);
     return;
   }
 
+  console.debug("[level] correct answer", {
+    levelId: activeLevel.id,
+    selectedChoiceId
+  });
   submitAnswerBtn.disabled = true;
   try {
     await saveProgress(activeLevel);
     setLevelFeedback(activeLevel.challenge.successMessage);
+    console.debug("[level] level completed", { levelId: activeLevel.id });
     setStatus(`ผ่าน ${activeLevel.name} แล้ว! ปลดล็อกด่านถัดไปสำเร็จ ✅`);
   } catch {
     setLevelFeedback("ผ่านโจทย์แล้ว แต่บันทึกผลไม่สำเร็จ ลองกดตอบใหม่อีกครั้ง", true);
@@ -339,12 +369,15 @@ const startLevel = (level) => {
     return;
   }
 
+  if (level.id === "level-1") {
+    console.debug("[level] start level 1", { levelId: level.id });
+  }
   console.debug("[world] navigating to level", { levelId: level.id, targetScene: "level" });
   activeLevel = level;
   selectedChoiceId = null;
   levelSceneTitle.textContent = level.name;
   levelSceneQuestion.textContent = level.challenge.question;
-  setLevelFeedback("เดินชนคำตอบ แล้วกดปุ่มตอบ");
+  setLevelFeedback("แตะคำตอบที่ต้องการ แล้วกดปุ่มตอบ");
   submitAnswerBtn.disabled = false;
 
   levelArena.innerHTML = "";
