@@ -1,89 +1,112 @@
-# GAMEFORstudent (Step 1 MVP + Data-driven Levels)
+# GAMEFORstudent (Step 6: Admin จัดการด่านจาก Firestore)
 
-โปรเจกต์เริ่มต้นสำหรับเกมการศึกษาแนว 2D top-down maze แบบ PWA โดยตอนนี้รองรับ:
+โปรเจกต์เกมการศึกษาแนว 2D top-down maze แบบ PWA ที่รองรับ:
 
 - หน้าเข้าเกม + Lobby realtime
 - Firebase Anonymous Auth + Firestore + Realtime Database
-- ระบบด่านแบบ **data-driven** (ไม่ hardcode ใน game engine)
-- หน้า **Admin ในเกม** สำหรับเพิ่ม/แก้ไขด่าน
+- ระบบด่านแบบ **data-driven** (Scene โหลดด่านจาก Firestore, ไม่ hardcode)
+- หน้า **Admin** สำหรับเพิ่ม/แก้ไข/ลบ/เปิด-ปิดด่าน
 
-## โครงสร้าง
+## โครงสร้างสำคัญ
 
 ```txt
 public/
-  index.html
-  lobby.html
   game.html
   admin.html
-  manifest.webmanifest
-  sw.js
-src/
-  css/styles.css
-  js/
-    main.js
-    lobby.js
-    game.js
-    admin.js
-    firebase.js
-    config/firebase-config.js
-    config/firebase.example.js
-    services/
-      auth.js
-      player.js
-      duelQueue.js
-      levels.js
+src/js/
+  admin.js
+  game.js
+  components/levelForm.js
+  models/levelModel.js
+  services/levels.js
+  services/levelsAdmin.js
+  services/player.js
 ```
 
-## วิธีเริ่มใช้งาน
+## การตั้งค่า Firebase
 
 1. สร้าง Firebase Project
 2. เปิดใช้งาน Anonymous Authentication
 3. สร้าง Firestore Database
-4. (ถ้าต้องการ template) ใช้ `src/js/config/firebase.example.js`
-5. ใส่ค่า Firebase config จริงใน `src/js/config/firebase-config.js`
-6. เสิร์ฟไฟล์ด้วย static server (เช่น `npx serve .`)
-7. เปิด `http://localhost:3000/public/`
+4. ใส่ค่า Firebase config จริงใน `src/js/config/firebase-config.js`
+5. เสิร์ฟไฟล์ด้วย static server (เช่น `npx serve .`)
+6. เปิด `http://localhost:3000/public/`
 
-## Firestore Schema สำหรับด่าน
+## Firestore collection: `levels`
 
-- Collection: `levels`
-- 1 ด่าน = 1 document (`levelId`)
-- ฟิลด์ที่ระบบใช้:
-  - `order` (number) ลำดับด่าน
-  - `title` (string) ชื่อด่าน
-  - `description` (string) คำอธิบาย
-  - `question` (string) โจทย์
-  - `answer` (string) เฉลย
-  - `isPublished` (boolean) ให้ scene เกมเห็นหรือไม่
+- ใช้ document id เป็น `levelId`
+- ฟิลด์ที่รองรับ:
+  - `worldId` (string)
+  - `levelId` (string)
+  - `title` (string)
+  - `description` (string)
+  - `difficultyRank` (number)
+  - `questionType` (string) เช่น `multiple-choice`
+  - `questionText` (string)
+  - `choiceA`, `choiceB`, `choiceC` (string)
+  - `correctAnswer` (string: A/B/C)
+  - `rewardCoins` (number)
+  - `rewardItemChance` (number 0-1)
+  - `mapType` (string)
+  - `status` (`active` | `inactive`)
   - `createdAt`, `updatedAt` (timestamp)
 
-ตัวอย่าง document (`levels/level-01`):
+### ตัวอย่าง Firestore document
+
+`levels/w1-l1`
 
 ```json
 {
-  "order": 1,
-  "title": "บวกเลขหลักเดียว",
-  "description": "ฝึกการบวกพื้นฐาน",
-  "question": "3 + 4 = ?",
-  "answer": "7",
-  "isPublished": true
+  "worldId": "world-1",
+  "levelId": "w1-l1",
+  "title": "บวกเลขพื้นฐาน",
+  "description": "ฝึกบวกเลข 1 หลัก",
+  "difficultyRank": 1,
+  "questionType": "multiple-choice",
+  "questionText": "2 + 3 = ?",
+  "choiceA": "4",
+  "choiceB": "5",
+  "choiceC": "6",
+  "correctAnswer": "B",
+  "rewardCoins": 10,
+  "rewardItemChance": 0.1,
+  "mapType": "forest",
+  "status": "active"
 }
 ```
 
-## การเพิ่มด่านใหม่ (2 ทาง)
+## Sample data (5 ด่าน)
 
-1. **ผ่าน Firebase Console**
-   - สร้าง document ใหม่ใน collection `levels`
-   - ตั้ง document id เป็น `levelId` ที่ต้องการ
-   - ใส่ฟิลด์ตาม schema ด้านบน
+1. `w1-l1` บวกเลขพื้นฐาน (active)
+2. `w1-l2` ลบเลขง่าย (active)
+3. `w1-l3` คูณเลข 2 (active)
+4. `w2-l1` หารเบื้องต้น (active)
+5. `w2-l2` ด่านทดสอบลำดับ (inactive)
 
-2. **ผ่านหน้า Admin ในเกม**
-   - เข้า `public/admin.html`
-   - กรอกข้อมูลด่านแล้วกด “บันทึกด่าน”
-   - ระบบจะ upsert document ที่ `levels/{levelId}`
+> ในหน้า Admin มีปุ่ม `เพิ่มข้อมูลตัวอย่าง 5 ด่าน` เพื่อ seed ได้ทันที
 
-## วิธีโหลดด่านใน Scene
+## สิทธิ์แอดมิน
 
-- หน้า `public/game.html` จะเรียก service `getLevelById(levelId)`
-- Scene แสดงข้อมูลด่านจาก Firestore โดยตรงตาม `levelId`
-- รายการด่านเลือกได้จาก `listLevels()` (เฉพาะ `isPublished = true`)
+เพิ่มโครงสร้าง `isAdmin` ใน player profile (`players/{uid}`):
+
+```json
+{
+  "uid": "<firebase-auth-uid>",
+  "characterName": "Player One",
+  "isAdmin": true
+}
+```
+
+ถ้า `isAdmin !== true` จะดูหน้าได้ แต่จะจัดการด่านไม่ได้
+
+## Validation ที่รองรับ
+
+- ฟิลด์สำคัญต้องไม่ว่าง
+- `correctAnswer` ต้องเป็น A/B/C และต้องตรงกับ choice ที่มี
+- `levelId` ต้องไม่ซ้ำตอนสร้างด่านใหม่
+- `rewardItemChance` ต้องอยู่ในช่วง 0 ถึง 1
+
+## สถานะโหมดดวล
+
+- **ยังไม่ได้ทำโหมดดวลจริง**
+- โฟกัสปัจจุบันคือระบบ Admin สำหรับเพิ่ม/แก้ไขด่าน

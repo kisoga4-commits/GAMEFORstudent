@@ -6,9 +6,12 @@ import { getLevelById, listLevels } from "./services/levels.js";
 const levelSelect = document.getElementById("levelSelect");
 const loadLevelBtn = document.getElementById("loadLevelBtn");
 const levelTitle = document.getElementById("levelTitle");
+const levelWorld = document.getElementById("levelWorld");
 const levelDescription = document.getElementById("levelDescription");
 const levelQuestion = document.getElementById("levelQuestion");
+const levelChoices = document.getElementById("levelChoices");
 const levelAnswer = document.getElementById("levelAnswer");
+const levelReward = document.getElementById("levelReward");
 const statusMessage = document.getElementById("statusMessage");
 
 let currentUser = null;
@@ -56,11 +59,11 @@ function bindEvents() {
   });
 }
 
-async function initLevelSelector(defaultLevelOrder) {
+async function initLevelSelector(defaultDifficultyRank) {
   const levels = await listLevels();
 
   if (levels.length === 0) {
-    setStatus("ยังไม่มีด่านใน Firestore ให้เพิ่มใน collection: levels", true);
+    setStatus("ยังไม่มีด่าน active ใน Firestore ให้เพิ่มใน collection: levels", true);
     setLevelView(null);
     return;
   }
@@ -70,20 +73,20 @@ async function initLevelSelector(defaultLevelOrder) {
 
     levels.forEach((level) => {
       const option = document.createElement("option");
-      option.value = level.id;
-      option.textContent = `${level.order}. ${level.title || level.id}`;
+      option.value = level.levelId;
+      option.textContent = `${level.difficultyRank}. ${level.title || level.levelId}`;
       levelSelect.appendChild(option);
     });
   }
 
   const preferredLevel =
-    levels.find((level) => Number(level.order) === Number(defaultLevelOrder)) || levels[0];
+    levels.find((level) => Number(level.difficultyRank) === Number(defaultDifficultyRank)) || levels[0];
 
   if (levelSelect) {
-    levelSelect.value = preferredLevel.id;
+    levelSelect.value = preferredLevel.levelId;
   }
 
-  await loadLevelScene(preferredLevel.id);
+  await loadLevelScene(preferredLevel.levelId);
 }
 
 async function loadLevelScene(levelId) {
@@ -97,14 +100,14 @@ async function loadLevelScene(levelId) {
 
     const level = await getLevelById(levelId);
 
-    if (!level) {
+    if (!level || level.status !== "active") {
       setLevelView(null);
-      setStatus(`ไม่พบด่าน ${levelId} ใน collection levels`, true);
+      setStatus(`ไม่พบด่าน active: ${levelId}`, true);
       return;
     }
 
     setLevelView(level);
-    setStatus(`โหลดด่าน ${level.id} สำเร็จ`);
+    setStatus(`โหลดด่าน ${level.levelId} สำเร็จ`);
   } catch (error) {
     console.error(error);
     setStatus("เกิดข้อผิดพลาดระหว่างโหลดด่าน", true);
@@ -116,16 +119,22 @@ async function loadLevelScene(levelId) {
 function setLevelView(level) {
   if (!level) {
     levelTitle.textContent = "ไม่พบข้อมูลด่าน";
+    levelWorld.textContent = "-";
     levelDescription.textContent = "-";
     levelQuestion.textContent = "-";
+    levelChoices.textContent = "-";
     levelAnswer.textContent = "-";
+    levelReward.textContent = "-";
     return;
   }
 
-  levelTitle.textContent = `${level.order || "-"}. ${level.title || level.id}`;
+  levelTitle.textContent = `${level.difficultyRank || "-"}. ${level.title || level.levelId}`;
+  levelWorld.textContent = level.worldId || "-";
   levelDescription.textContent = level.description || "-";
-  levelQuestion.textContent = level.question || "-";
-  levelAnswer.textContent = level.answer || "-";
+  levelQuestion.textContent = level.questionText || "-";
+  levelChoices.textContent = `A) ${level.choiceA} | B) ${level.choiceB} | C) ${level.choiceC}`;
+  levelAnswer.textContent = `${level.correctAnswer} (${level[`choice${level.correctAnswer}`] || "-"})`;
+  levelReward.textContent = `${level.rewardCoins} coins, item chance ${level.rewardItemChance}`;
 }
 
 function setLoading(isLoading) {

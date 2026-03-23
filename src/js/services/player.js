@@ -19,6 +19,7 @@ export async function savePlayerProfile({ uid, characterName, accessCode }) {
       unlockedLevels: [1]
     },
     inventory: [],
+    isAdmin: false,
     updatedAt: serverTimestamp()
   };
 

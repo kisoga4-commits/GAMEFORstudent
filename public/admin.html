@@ -10,50 +10,98 @@
     <main class="container">
       <section class="card card-admin">
         <p class="badge">🛠️ Level Admin</p>
-        <h1>Admin - จัดการด่าน</h1>
-        <p class="subtitle">เพิ่ม/แก้ไขด่านใน Firestore โดยตรงได้จากในเกม</p>
+        <h1>Admin - เพิ่ม/แก้โจทย์และด่าน</h1>
+        <p class="subtitle">ออกแบบให้ใช้งานง่ายทั้งมือถือและคอมพิวเตอร์ โดยเก็บข้อมูลลง Firestore collection: <code>levels</code></p>
 
-        <form id="levelForm" class="form" autocomplete="off">
-          <label for="levelId">levelId (document id)</label>
-          <input id="levelId" name="levelId" type="text" placeholder="เช่น level-01" required />
+        <p id="formModeText" class="helper-text">โหมดเพิ่มด่านใหม่</p>
 
-          <label for="order">ลำดับด่าน</label>
-          <input id="order" name="order" type="number" min="1" placeholder="เช่น 1" required />
+        <form id="levelForm" class="form grid-form" autocomplete="off">
+          <label for="worldId">worldId</label>
+          <input id="worldId" name="worldId" type="text" placeholder="เช่น world-1" required />
 
-          <label for="title">ชื่อด่าน</label>
-          <input id="title" name="title" type="text" placeholder="เช่น บวกเลขหลักเดียว" required />
+          <label for="levelId">levelId</label>
+          <input id="levelId" name="levelId" type="text" placeholder="เช่น w1-l1" required />
 
-          <label for="description">คำอธิบาย</label>
+          <label for="title">title</label>
+          <input id="title" name="title" type="text" placeholder="ชื่อด่าน" required />
+
+          <label for="description">description</label>
           <input id="description" name="description" type="text" placeholder="คำอธิบายด่าน" />
 
-          <label for="question">โจทย์</label>
-          <input id="question" name="question" type="text" placeholder="เช่น 3 + 4 = ?" required />
+          <label for="difficultyRank">difficultyRank</label>
+          <input id="difficultyRank" name="difficultyRank" type="number" min="1" required />
 
-          <label for="answer">คำตอบ</label>
-          <input id="answer" name="answer" type="text" placeholder="เช่น 7" required />
+          <label for="questionType">questionType</label>
+          <select id="questionType" name="questionType" required>
+            <option value="multiple-choice">multiple-choice</option>
+          </select>
 
-          <label class="check-row" for="isPublished">
-            <input id="isPublished" name="isPublished" type="checkbox" checked />
-            เผยแพร่ด่าน (ให้ scene เกมเห็น)
-          </label>
+          <label for="questionText">questionText</label>
+          <input id="questionText" name="questionText" type="text" placeholder="พิมพ์โจทย์" required />
 
-          <button type="submit">บันทึกด่าน</button>
+          <label for="choiceA">choiceA</label>
+          <input id="choiceA" name="choiceA" type="text" placeholder="ตัวเลือก A" required />
+
+          <label for="choiceB">choiceB</label>
+          <input id="choiceB" name="choiceB" type="text" placeholder="ตัวเลือก B" required />
+
+          <label for="choiceC">choiceC</label>
+          <input id="choiceC" name="choiceC" type="text" placeholder="ตัวเลือก C" required />
+
+          <label for="correctAnswer">correctAnswer</label>
+          <select id="correctAnswer" name="correctAnswer" required>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+          </select>
+
+          <label for="rewardCoins">rewardCoins</label>
+          <input id="rewardCoins" name="rewardCoins" type="number" min="0" required />
+
+          <label for="rewardItemChance">rewardItemChance</label>
+          <input id="rewardItemChance" name="rewardItemChance" type="number" min="0" max="1" step="0.01" required />
+
+          <label for="mapType">mapType</label>
+          <select id="mapType" name="mapType" required>
+            <option value="forest">forest</option>
+            <option value="desert">desert</option>
+            <option value="ice">ice</option>
+            <option value="castle">castle</option>
+            <option value="space">space</option>
+          </select>
+
+          <label for="status">status</label>
+          <select id="status" name="status" required>
+            <option value="active">active</option>
+            <option value="inactive">inactive</option>
+          </select>
+
+          <button type="submit">เพิ่มด่าน</button>
         </form>
 
-        <div class="action-row">
-          <button id="refreshBtn" type="button" class="btn-secondary">รีเฟรชรายการด่าน</button>
-          <a class="link-btn link-btn-secondary" href="./game.html">กลับหน้า Game Scene</a>
+        <div class="action-row action-row-admin">
+          <button id="resetBtn" type="button" class="btn-secondary">ล้างฟอร์ม</button>
+          <button id="refreshBtn" type="button" class="btn-secondary">รีเฟรชรายการ</button>
+          <button id="seedBtn" type="button" class="btn-secondary">เพิ่มข้อมูลตัวอย่าง 5 ด่าน</button>
+          <a class="link-btn" href="./game.html">ไปหน้า Game Scene</a>
         </div>
+
+        <section class="queue-panel" aria-label="ค้นหาด่าน">
+          <h2>ค้นหาด่าน</h2>
+          <input id="searchInput" type="text" placeholder="ค้นหา levelId หรือ title" />
+        </section>
 
         <section class="table-wrap" aria-label="รายการด่านทั้งหมด">
           <table class="levels-table">
             <thead>
               <tr>
+                <th>worldId</th>
                 <th>levelId</th>
-                <th>Order</th>
-                <th>Title</th>
-                <th>Question</th>
-                <th>Status</th>
+                <th>title</th>
+                <th>difficulty</th>
+                <th>mapType</th>
+                <th>status</th>
+                <th>actions</th>
               </tr>
             </thead>
             <tbody id="levelsTableBody"></tbody>
