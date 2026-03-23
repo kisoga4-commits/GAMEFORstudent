@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ForKid World Map</title>
+    <title>ForKid World Map v3</title>
     <meta name="theme-color" content="#4f46e5" />
-    <link rel="manifest" href="./manifest.webmanifest" />
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="manifest" href="./manifest.webmanifest?v=3" />
+    <link rel="stylesheet" href="./styles.css?v=3" />
     <link
       rel="icon"
       type="image/svg+xml"
@@ -15,19 +15,26 @@
   </head>
   <body class="world-page">
     <main class="world-shell" aria-label="แผนที่โลกหลักของเกม">
-      <header class="world-header">
-        <p class="chip">🎮 เกมผจญภัยเด็ก</p>
-        <h1 id="playerGreeting">สวัสดี นักผจญภัย</h1>
-        <p id="worldStatus" class="world-status" aria-live="polite">กำลังโหลดโลกหลัก...</p>
+      <header class="world-hud">
+        <div class="hud-player">
+          <span class="hud-label">ผู้เล่น</span>
+          <strong id="playerGreeting">นักผจญภัย</strong>
+        </div>
+        <div class="hud-pill" aria-live="polite">🪙 <span id="coinCount">0</span></div>
+        <div class="hud-pill" aria-live="polite">🗺️ <span id="unlockCount">1/3</span></div>
       </header>
+
+      <p id="worldStatus" class="world-status" aria-live="polite">กำลังโหลดโลกหลัก...</p>
 
       <section class="map-frame" aria-label="แผนที่โลก">
         <div id="worldMap" class="world-map" role="application" aria-label="แผนที่เกมสำหรับการเดินตัวละคร">
+          <div class="sky-glow"></div>
           <div class="decor decor-cloud">☁️</div>
           <div class="decor decor-cloud cloud-2">☁️</div>
           <div class="decor decor-tree">🌳</div>
           <div class="decor decor-tree tree-2">🌲</div>
           <div class="decor decor-house">🏡</div>
+          <div id="onboardingHint" class="onboarding-hint" hidden>👉 เดินไปหาด่านแล้วแตะเริ่ม</div>
           <svg class="map-path" viewBox="0 0 100 100" aria-hidden="true">
             <path d="M15 26 C30 25, 38 32, 48 33 S70 22, 84 30" />
             <path d="M48 33 C45 45, 46 52, 44 66" />
@@ -37,7 +44,7 @@
       </section>
 
       <section class="controls" aria-label="ปุ่มบังคับเดินบนมือถือ">
-        <p class="controls-title">บังคับเดิน: ลูกศร/WASD หรือปุ่มด้านล่าง</p>
+        <p class="controls-title">บังคับเดิน: ลูกศร / WASD</p>
         <button type="button" class="move-btn" data-dir="up" aria-label="เดินขึ้น">▲</button>
         <div class="controls-row">
           <button type="button" class="move-btn" data-dir="left" aria-label="เดินซ้าย">◀</button>
@@ -49,8 +56,10 @@
 
     <div id="levelModal" class="modal" hidden>
       <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="levelName">
+        <p id="levelBadge" class="level-badge">ด่านใหม่</p>
         <h2 id="levelName"></h2>
         <p id="levelDescription"></p>
+        <p id="levelReward" class="reward"></p>
         <p id="levelLock" class="lock-state"></p>
         <div class="modal-actions">
           <button id="startLevelBtn" type="button" class="primary">เริ่มด่าน</button>
@@ -59,6 +68,10 @@
       </div>
     </div>
 
-    <script type="module" src="./app.js"></script>
+    <div id="enterLevelFx" class="enter-level" hidden>
+      <p>🚀 กำลังเข้าสู่ด่าน...</p>
+    </div>
+
+    <script type="module" src="./app.js?v=3"></script>
   </body>
 </html>
