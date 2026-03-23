@@ -1,7 +1,9 @@
-const CACHE_NAME = "maze-kids-v1";
+const CACHE_NAME = "maze-kids-v2";
 const STATIC_ASSETS = [
   "./index.html",
   "./lobby.html",
+  "./game.html",
+  "./admin.html",
   "./manifest.webmanifest",
   "../src/css/styles.css"
 ];
