@@ -58,13 +58,22 @@ const levelHero = {
   el: null
 };
 
-let playerData = null;
+const playerState = {
+  data: null,
+  isLoadingProfile: false,
+  isSavingProfile: false,
+  isHydrating: false,
+  pendingPatch: null
+};
 let currentUser = null;
 let activeLevel = null;
 let selectedChoiceId = null;
 let holdMoveTimer = null;
 let currentScene = "world";
 let activeTriggerLevelId = null;
+let controlsBound = false;
+let worldRendered = false;
+let appInitialized = false;
 const modalCooldownUntilByLevel = new Map();
 const triggerExitRequiredLevels = new Set();
 
@@ -113,7 +122,7 @@ const createAnswerNode = (choice) => {
 };
 
 const getUnlockedCount = () => {
-  const unlockedRaw = playerData?.unlockedLevels;
+  const unlockedRaw = playerState.data?.unlockedLevels;
   const unlockedCount = Number.parseInt(unlockedRaw, 10);
   if (!Number.isFinite(unlockedCount) || unlockedCount < 1) {
     return 1;
@@ -270,23 +279,16 @@ const saveProgress = async (level) => {
   if (!currentUser) return;
 
   const nextUnlocked = Math.max(level.unlockOrder + 1, getUnlockedCount());
-  const completedLevels = Array.isArray(playerData?.completedLevels)
-    ? new Set(playerData.completedLevels)
+  const completedLevels = Array.isArray(playerState.data?.completedLevels)
+    ? new Set(playerState.data.completedLevels)
     : new Set();
 
   completedLevels.add(level.id);
 
-  const payload = {
+  await savePlayerProfile({
     unlockedLevels: nextUnlocked,
-    completedLevels: Array.from(completedLevels),
-    updatedAt: serverTimestamp()
-  };
-
-  await setDoc(doc(db, "players", currentUser.uid), payload, { merge: true });
-  playerData = {
-    ...playerData,
-    ...payload
-  };
+    completedLevels: Array.from(completedLevels)
+  });
 };
 
 const backToWorld = () => {
@@ -355,6 +357,7 @@ const startLevel = (level) => {
   levelHero.el = createHeroNode("level-hero");
   levelArena.appendChild(levelHero.el);
   updateLevelHeroPosition();
+  console.debug("[level] level loaded", { levelId: level.id });
 
   closeLevelModal({ resetActive: false, applyCooldown: false });
   currentScene = "level";
@@ -363,6 +366,9 @@ const startLevel = (level) => {
 };
 
 const bindControls = () => {
+  if (controlsBound) return;
+  controlsBound = true;
+
   worldMap.addEventListener("click", (event) => {
     if (currentScene !== "world" || !levelModal.hidden) return;
     const levelNode = event.target.closest(".level-node");
@@ -436,6 +442,9 @@ const bindControls = () => {
 };
 
 const renderWorld = () => {
+  if (worldRendered) return;
+  worldRendered = true;
+
   WORLD_LEVELS.forEach((level) => {
     worldMap.appendChild(createLevelNode(level));
   });
@@ -460,18 +469,102 @@ const loadPlayer = async (uid) => {
   return snap.exists() ? snap.data() : null;
 };
 
+const updatePlayerState = (patch) => {
+  if (!patch || typeof patch !== "object") return;
+  playerState.data = {
+    ...(playerState.data ?? {}),
+    ...patch
+  };
+};
+
+const flushQueuedSave = async () => {
+  if (!currentUser || !playerState.pendingPatch || playerState.isHydrating || playerState.isLoadingProfile) return;
+  if (playerState.isSavingProfile) return;
+
+  const patch = playerState.pendingPatch;
+  playerState.pendingPatch = null;
+  playerState.isSavingProfile = true;
+  console.debug("[profile] player save start", { patchKeys: Object.keys(patch) });
+
+  try {
+    await setDoc(
+      doc(db, "players", currentUser.uid),
+      {
+        ...patch,
+        updatedAt: serverTimestamp()
+      },
+      { merge: true }
+    );
+    updatePlayerState(patch);
+    console.debug("[profile] player save success", { patchKeys: Object.keys(patch) });
+  } catch (error) {
+    console.error("[profile] player save failed", error);
+    playerState.pendingPatch = {
+      ...(playerState.pendingPatch ?? {}),
+      ...patch
+    };
+    throw error;
+  } finally {
+    playerState.isSavingProfile = false;
+  }
+
+  if (playerState.pendingPatch) {
+    await flushQueuedSave();
+  }
+};
+
+const savePlayerProfile = async (partialUpdate) => {
+  if (!partialUpdate || typeof partialUpdate !== "object") return;
+
+  playerState.pendingPatch = {
+    ...(playerState.pendingPatch ?? {}),
+    ...partialUpdate
+  };
+
+  await flushQueuedSave();
+};
+
+const loadPlayerProfile = async (uid) => {
+  playerState.isLoadingProfile = true;
+  playerState.isHydrating = true;
+  console.debug("[profile] player load start", { uid });
+  try {
+    const loaded = await loadPlayer(uid);
+    playerState.data = loaded;
+    console.debug("[profile] player load success", {
+      uid,
+      hasProfile: Boolean(loaded),
+      unlockedLevels: loaded?.unlockedLevels ?? null
+    });
+    return loaded;
+  } catch (error) {
+    console.error("[profile] player load failed", error);
+    throw error;
+  } finally {
+    playerState.isLoadingProfile = false;
+    window.queueMicrotask(() => {
+      playerState.isHydrating = false;
+    });
+  }
+};
+
 const init = async () => {
+  if (appInitialized) return;
+  appInitialized = true;
+  console.debug("[app] app boot");
+  console.debug("[app] firebase ready");
+
   try {
     setStatus("กำลังโหลดโปรไฟล์ผู้เล่น...");
     currentUser = await ensureUser();
-    playerData = await loadPlayer(currentUser.uid);
+    await loadPlayerProfile(currentUser.uid);
 
-    if (!playerData?.playerName || !playerData?.playerCode) {
+    if (!playerState.data?.playerName || !playerState.data?.playerCode) {
       window.location.href = "./setup.html";
       return;
     }
 
-    playerGreeting.textContent = `สวัสดี ${playerData.playerName} ออกสำรวจโลกกัน!`;
+    playerGreeting.textContent = `สวัสดี ${playerState.data.playerName} ออกสำรวจโลกกัน!`;
     setStatus("เดินชนด่านเพื่อเปิดหน้าต่างเริ่มทดสอบ");
     renderWorld();
     bindControls();
@@ -479,7 +572,8 @@ const init = async () => {
     if ("serviceWorker" in navigator) {
       await navigator.serviceWorker.register("./service-worker.js");
     }
-  } catch {
+  } catch (error) {
+    console.error("[app] boot failed", error);
     setStatus("เชื่อมต่อโลกเกมไม่สำเร็จ กรุณาลองใหม่", true);
   }
 };
