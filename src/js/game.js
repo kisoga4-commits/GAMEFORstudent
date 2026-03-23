@@ -28,7 +28,7 @@ onAuthStateChanged(auth, async (user) => {
     setStatus("กำลังโหลดข้อมูลผู้เล่น...");
     const profile = await getPlayerProfile(user.uid);
 
-    if (!profile?.characterName) {
+    if (!profile?.playerName) {
       setStatus("ไม่พบข้อมูลผู้เล่น กลับหน้าเข้าเกม", true);
       setTimeout(() => {
         window.location.href = "./index.html";
