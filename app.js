@@ -25,6 +25,11 @@ const playerCodeInput = document.getElementById("playerCode");
 const statusEl = document.getElementById("status");
 const installBtn = document.getElementById("installBtn");
 
+const STATUS_SAVING = "กำลังบันทึก...";
+const STATUS_SAVE_SUCCESS = "บันทึกสำเร็จ";
+const STATUS_LOAD_SUCCESS = "โหลดข้อมูลสำเร็จ";
+const STATUS_ERROR = "เกิดข้อผิดพลาด";
+
 let deferredPrompt = null;
 let currentUid = null;
 
@@ -44,11 +49,11 @@ const loadProfile = async (uid) => {
 
   if (snap.exists()) {
     fillForm(snap.data());
-    setStatus("✅ โหลดข้อมูลสำเร็จ");
-    return;
+  } else {
+    fillForm({ playerName: "", playerCode: "" });
   }
 
-  fillForm({ playerName: "", playerCode: "" });
+  setStatus(STATUS_LOAD_SUCCESS);
 };
 
 const saveProfile = async (uid) => {
@@ -56,11 +61,11 @@ const saveProfile = async (uid) => {
   const playerCode = playerCodeInput.value.trim();
 
   if (!playerName || !playerCode) {
-    setStatus("⚠️ เกิดข้อผิดพลาด", true);
+    setStatus(STATUS_ERROR, true);
     return;
   }
 
-  setStatus("⏳ กำลังบันทึก...");
+  setStatus(STATUS_SAVING);
 
   const ref = doc(db, "players", uid);
   const snap = await getDoc(ref);
@@ -73,21 +78,21 @@ const saveProfile = async (uid) => {
   };
 
   await setDoc(ref, payload, { merge: true });
-  setStatus("✅ บันทึกสำเร็จ");
+  setStatus(STATUS_SAVE_SUCCESS);
 };
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   if (!currentUid) {
-    setStatus("⚠️ เกิดข้อผิดพลาด", true);
+    setStatus(STATUS_ERROR, true);
     return;
   }
 
   try {
     await saveProfile(currentUid);
   } catch {
-    setStatus("⚠️ เกิดข้อผิดพลาด", true);
+    setStatus(STATUS_ERROR, true);
   }
 });
 
@@ -99,7 +104,7 @@ onAuthStateChanged(auth, async (user) => {
   try {
     await loadProfile(user.uid);
   } catch {
-    setStatus("⚠️ เกิดข้อผิดพลาด", true);
+    setStatus(STATUS_ERROR, true);
   }
 });
 
@@ -110,15 +115,20 @@ const init = async () => {
       await signInAnonymously(auth);
     }
   } catch {
-    setStatus("⚠️ เกิดข้อผิดพลาด", true);
+    setStatus(STATUS_ERROR, true);
   }
 
   if ("serviceWorker" in navigator) {
     try {
       await navigator.serviceWorker.register("./service-worker.js");
     } catch {
-      setStatus("⚠️ เกิดข้อผิดพลาด", true);
+      setStatus(STATUS_ERROR, true);
     }
+  }
+
+  const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  if (isStandalone) {
+    installBtn.hidden = true;
   }
 };
 
