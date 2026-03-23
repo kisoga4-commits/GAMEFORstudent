@@ -3,46 +3,45 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Maze Kids - เข้าเกม</title>
-    <meta name="theme-color" content="#0f172a" />
+    <title>Maze Kids - หน้าเข้าเกม</title>
+    <meta name="theme-color" content="#6d28d9" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="stylesheet" href="../src/css/styles.css" />
   </head>
-  <body>
+  <body class="page-login">
     <main class="container">
-      <section class="card card-login">
-        <p class="badge">🎮 Firebase Live</p>
-        <h1>Maze Kids</h1>
-        <p class="subtitle">เกมการศึกษาแนวเขาวงกตสำหรับเด็ก พร้อมระบบล็อกอิน Firebase จริง</p>
+      <section class="card card-login" aria-label="หน้าเข้าเกม">
+        <p class="badge">🌟 เกมเด็กสุดน่ารัก</p>
+        <h1 class="game-title">Maze Kids Adventure</h1>
+        <p class="subtitle">ใส่ข้อมูลสั้น ๆ แล้วกดเข้าเล่นได้เลย</p>
 
         <form id="loginForm" class="form" autocomplete="off">
-          <label for="characterName">ชื่อตัวละคร</label>
+          <label for="playerName">ชื่อตัวละคร</label>
           <input
-            id="characterName"
-            name="characterName"
+            id="playerName"
+            name="playerName"
             type="text"
             minlength="2"
             maxlength="24"
-            placeholder="เช่น BraveKid"
+            placeholder="เช่น LittleHero"
             required
           />
 
-          <label for="accessCode">รหัส</label>
+          <label for="playerCode">รหัส</label>
           <input
-            id="accessCode"
-            name="accessCode"
+            id="playerCode"
+            name="playerCode"
             type="password"
             minlength="4"
             maxlength="16"
-            placeholder="กรอกรหัส"
+            placeholder="กรอกรหัส 4-16 ตัว"
             required
           />
 
-          <button id="submitBtn" type="submit">เข้าเกม</button>
+          <button id="submitBtn" type="submit">เข้าเล่น</button>
         </form>
 
         <p id="statusMessage" class="status" aria-live="polite"></p>
-        <p class="helper-text">ระบบจะสร้างผู้เล่นแบบ Anonymous และบันทึกโปรไฟล์ลง Firestore อัตโนมัติ</p>
       </section>
     </main>
 
