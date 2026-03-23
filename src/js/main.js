@@ -1,13 +1,20 @@
 import { analyticsPromise } from "./firebase.js";
 import { loginAnonymously } from "./services/auth.js";
-import { savePlayerProfile } from "./services/player.js";
+import { getPlayerProfile, savePlayerProfile } from "./services/player.js";
 
 const loginForm = document.getElementById("loginForm");
+const playerNameInput = document.getElementById("playerName");
+const playerCodeInput = document.getElementById("playerCode");
 const submitBtn = document.getElementById("submitBtn");
+const installBtn = document.getElementById("installBtn");
 const statusMessage = document.getElementById("statusMessage");
 
+let deferredInstallPrompt = null;
+
 registerServiceWorker();
+setupInstallPrompt();
 void analyticsPromise;
+void initializeForm();
 
 loginForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -17,39 +24,86 @@ loginForm?.addEventListener("submit", async (event) => {
   const playerCode = String(formData.get("playerCode") || "").trim();
 
   if (!isValidPlayerName(playerName)) {
-    setStatus("ชื่อตัวละครต้องมี 2-24 ตัวอักษร (ไทย/อังกฤษ/ตัวเลข)", true);
+    setStatus("playerName ต้องยาว 2-24 ตัวอักษร", true);
     return;
   }
 
   if (!isValidPlayerCode(playerCode)) {
-    setStatus("รหัสต้องมี 4-16 ตัวอักษร", true);
+    setStatus("playerCode ต้องยาว 4-24 ตัวอักษร", true);
     return;
   }
 
   try {
     setLoading(true);
-    setStatus("กำลังเข้าเล่น...");
+    setStatus("กำลังบันทึกข้อมูลขึ้น Cloud...");
 
-    const user = await loginAnonymously();
+    const user = await ensureAnonymousSession();
     await savePlayerProfile({
       uid: user.uid,
       playerName,
       playerCode
     });
 
-    setStatus("เข้าเล่นสำเร็จ กำลังไปหน้า Lobby...");
-    window.location.href = "./lobby.html";
+    setStatus(`บันทึกสำเร็จ (uid: ${user.uid.slice(0, 8)}...)`, false);
   } catch (error) {
     console.error(error);
-    setStatus("เกิดข้อผิดพลาดในการเข้าเล่น โปรดลองอีกครั้ง", true);
+    setStatus("เกิดข้อผิดพลาดในการบันทึก โปรดลองอีกครั้ง", true);
   } finally {
     setLoading(false);
   }
 });
 
+async function initializeForm() {
+  try {
+    setLoading(true);
+    setStatus("กำลังเชื่อมต่อ Firebase...");
+
+    const user = await ensureAnonymousSession();
+    const profile = await getPlayerProfile(user.uid);
+
+    if (profile) {
+      playerNameInput.value = profile.playerName || "";
+      playerCodeInput.value = profile.playerCode || "";
+      setStatus("โหลดข้อมูลเดิมจาก Cloud แล้ว");
+      return;
+    }
+
+    setStatus("ยังไม่มีข้อมูลผู้เล่นใน Cloud กรอกแล้วกดบันทึกได้เลย");
+  } catch (error) {
+    console.error(error);
+    setStatus("เชื่อมต่อ Firebase ไม่สำเร็จ", true);
+  } finally {
+    setLoading(false);
+  }
+}
+
+async function ensureAnonymousSession() {
+  return loginAnonymously();
+}
+
+function setupInstallPrompt() {
+  window.addEventListener("beforeinstallprompt", (event) => {
+    event.preventDefault();
+    deferredInstallPrompt = event;
+    installBtn.hidden = false;
+  });
+
+  installBtn?.addEventListener("click", async () => {
+    if (!deferredInstallPrompt) {
+      setStatus("อุปกรณ์นี้ยังไม่พร้อมติดตั้ง PWA", true);
+      return;
+    }
+
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    installBtn.hidden = true;
+  });
+}
+
 function setLoading(isLoading) {
   submitBtn.disabled = isLoading;
-  submitBtn.textContent = isLoading ? "กำลังดำเนินการ..." : "เข้าเล่น";
+  submitBtn.textContent = isLoading ? "กำลังดำเนินการ..." : "บันทึกข้อมูล";
 }
 
 function setStatus(message, isError = false) {
@@ -63,17 +117,19 @@ function isValidPlayerName(name) {
 }
 
 function isValidPlayerCode(code) {
-  return code.length >= 4 && code.length <= 16;
+  return code.length >= 4 && code.length <= 24;
 }
 
 function registerServiceWorker() {
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", async () => {
-      try {
-        await navigator.serviceWorker.register("./sw.js");
-      } catch (error) {
-        console.warn("Service worker registration failed", error);
-      }
-    });
+  if (!("serviceWorker" in navigator)) {
+    return;
   }
+
+  window.addEventListener("load", async () => {
+    try {
+      await navigator.serviceWorker.register("./sw.js");
+    } catch (error) {
+      console.warn("Service worker registration failed", error);
+    }
+  });
 }

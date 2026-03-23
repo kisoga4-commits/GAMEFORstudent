@@ -3,20 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Maze Kids - หน้าเข้าเกม</title>
-    <meta name="theme-color" content="#6d28d9" />
+    <title>GameForStudent - Cloud Sync</title>
+    <meta name="theme-color" content="#2563eb" />
     <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icons/icon-192.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./icons/icon-512.svg" />
     <link rel="stylesheet" href="./src/css/styles.css" />
   </head>
   <body class="page-login">
     <main class="container">
-      <section class="card card-login" aria-label="หน้าเข้าเกม">
-        <p class="badge">🌟 เกมเด็กสุดน่ารัก</p>
-        <h1 class="game-title">Maze Kids Adventure</h1>
-        <p class="subtitle">ใส่ข้อมูลสั้น ๆ แล้วกดเข้าเล่นได้เลย</p>
+      <section class="card card-login" aria-label="ฟอร์มผู้เล่น">
+        <p class="badge">PWA + Firebase Cloud Sync</p>
+        <h1 class="game-title">ข้อมูลผู้เล่น</h1>
+        <p class="subtitle">กรอกข้อมูลแล้วกดบันทึก เพื่อ sync ขึ้น Firestore</p>
 
-        <form id="loginForm" class="form" autocomplete="off">
-          <label for="playerName">ชื่อตัวละคร</label>
+        <form id="loginForm" class="form" autocomplete="on">
+          <label for="playerName">playerName</label>
           <input
             id="playerName"
             name="playerName"
@@ -27,20 +29,21 @@
             required
           />
 
-          <label for="playerCode">รหัส</label>
+          <label for="playerCode">playerCode</label>
           <input
             id="playerCode"
             name="playerCode"
-            type="password"
+            type="text"
             minlength="4"
-            maxlength="16"
-            placeholder="กรอกรหัส 4-16 ตัว"
+            maxlength="24"
+            placeholder="เช่น KID-1234"
             required
           />
 
-          <button id="submitBtn" type="submit">เข้าเล่น</button>
+          <button id="submitBtn" type="submit">บันทึกข้อมูล</button>
         </form>
 
+        <button id="installBtn" type="button" class="btn-secondary" hidden>ติดตั้งแอป (Install)</button>
         <p id="statusMessage" class="status" aria-live="polite"></p>
       </section>
     </main>
