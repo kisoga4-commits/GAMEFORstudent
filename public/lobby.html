@@ -6,47 +6,34 @@
     <title>Maze Kids - Lobby</title>
     <link rel="stylesheet" href="../src/css/styles.css" />
   </head>
-  <body>
+  <body class="page-lobby">
     <main class="container">
-      <section class="card card-lobby">
-        <p class="badge">🕹️ พร้อมดวล</p>
-        <h1>Lobby</h1>
-        <p class="subtitle">เข้าคิวรอดวลแบบ realtime และเข้าเกมที่โหลดด่านจาก Firestore</p>
+      <section class="card card-lobby" aria-label="หน้าล็อบบี้">
+        <p class="badge">🏰 Lobby</p>
+        <h1 class="game-title">พร้อมผจญภัย!</h1>
 
-        <div class="stats-grid" aria-label="สถิติผู้เล่น">
+        <article class="player-panel">
+          <p class="stat-label">ผู้เล่น</p>
+          <p id="playerNameDisplay" class="player-name">-</p>
+        </article>
+
+        <div class="stats-grid" aria-label="ข้อมูลผู้เล่น">
           <article class="stat-item">
-            <p class="stat-label">ออนไลน์ทั้งหมด</p>
-            <p id="onlineCount" class="stat-value">0</p>
+            <p class="stat-label">coins</p>
+            <p id="coinsDisplay" class="stat-value">0</p>
           </article>
           <article class="stat-item">
-            <p class="stat-label">อยู่ใน Lobby</p>
-            <p id="lobbyCount" class="stat-value">0</p>
-          </article>
-          <article class="stat-item">
-            <p class="stat-label">กำลังรอดวล</p>
-            <p id="queueCount" class="stat-value">0</p>
+            <p class="stat-label">rank</p>
+            <p id="rankDisplay" class="stat-value">Rookie</p>
           </article>
         </div>
 
-        <section class="queue-panel" aria-label="คิวรอดวล">
-          <h2>คิวรอดวล</h2>
-          <p id="queueStateText" class="queue-state">ยังไม่เข้าคิว</p>
-
-          <div class="action-row">
-            <button id="waitDuelBtn" type="button">รอดวล</button>
-            <button id="cancelQueueBtn" type="button" class="btn-secondary" hidden>ยกเลิกรอดวล</button>
-          </div>
-
-          <ul id="queueList" class="queue-list" aria-live="polite">
-            <li class="queue-item queue-item-empty">ยังไม่มีผู้เล่นในคิว</li>
-          </ul>
-        </section>
-
         <p id="statusMessage" class="status" role="status" aria-live="polite"></p>
-        <div class="action-row">
-          <a class="link-btn" href="./game.html">เข้า Game Scene</a>
-          <a class="link-btn" href="./admin.html">ไปหน้า Admin</a>
-          <a class="link-btn link-btn-secondary" href="./index.html">กลับหน้าเข้าเกม</a>
+
+        <div class="action-row single-col">
+          <a id="startGameBtn" class="link-btn" href="./game.html">เริ่มเล่น</a>
+          <button id="waitDuelBtn" type="button" class="btn-secondary">รอดวล</button>
+          <button id="logoutBtn" type="button" class="btn-danger">ออกจากระบบ</button>
         </div>
       </section>
     </main>

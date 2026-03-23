@@ -13,35 +13,35 @@ loginForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   const formData = new FormData(loginForm);
-  const characterName = String(formData.get("characterName") || "").trim();
-  const accessCode = String(formData.get("accessCode") || "").trim();
+  const playerName = String(formData.get("playerName") || "").trim();
+  const playerCode = String(formData.get("playerCode") || "").trim();
 
-  if (!isValidCharacterName(characterName)) {
+  if (!isValidPlayerName(playerName)) {
     setStatus("ชื่อตัวละครต้องมี 2-24 ตัวอักษร (ไทย/อังกฤษ/ตัวเลข)", true);
     return;
   }
 
-  if (!isValidAccessCode(accessCode)) {
+  if (!isValidPlayerCode(playerCode)) {
     setStatus("รหัสต้องมี 4-16 ตัวอักษร", true);
     return;
   }
 
   try {
     setLoading(true);
-    setStatus("กำลังเข้าสู่ระบบ...");
+    setStatus("กำลังเข้าเล่น...");
 
     const user = await loginAnonymously();
     await savePlayerProfile({
       uid: user.uid,
-      characterName,
-      accessCode
+      playerName,
+      playerCode
     });
 
-    setStatus("เข้าสู่ระบบสำเร็จ กำลังไปหน้า Lobby...");
+    setStatus("เข้าเล่นสำเร็จ กำลังไปหน้า Lobby...");
     window.location.href = "./lobby.html";
   } catch (error) {
     console.error(error);
-    setStatus("เกิดข้อผิดพลาดในการเข้าเกม โปรดลองอีกครั้ง", true);
+    setStatus("เกิดข้อผิดพลาดในการเข้าเล่น โปรดลองอีกครั้ง", true);
   } finally {
     setLoading(false);
   }
@@ -49,7 +49,7 @@ loginForm?.addEventListener("submit", async (event) => {
 
 function setLoading(isLoading) {
   submitBtn.disabled = isLoading;
-  submitBtn.textContent = isLoading ? "กำลังดำเนินการ..." : "เข้าเกม";
+  submitBtn.textContent = isLoading ? "กำลังดำเนินการ..." : "เข้าเล่น";
 }
 
 function setStatus(message, isError = false) {
@@ -58,11 +58,11 @@ function setStatus(message, isError = false) {
   statusMessage.classList.toggle("status-success", !isError && Boolean(message));
 }
 
-function isValidCharacterName(name) {
+function isValidPlayerName(name) {
   return /^[\p{L}\p{N}_\-\s]{2,24}$/u.test(name);
 }
 
-function isValidAccessCode(code) {
+function isValidPlayerCode(code) {
   return code.length >= 4 && code.length <= 16;
 }
 

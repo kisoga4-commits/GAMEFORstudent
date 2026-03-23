@@ -6,20 +6,24 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { db } from "../firebase.js";
 
-export async function savePlayerProfile({ uid, characterName, accessCode }) {
+export async function savePlayerProfile({ uid, playerName, playerCode }) {
   const playerRef = doc(db, "players", uid);
   const playerSnapshot = await getDoc(playerRef);
 
+  const previousData = playerSnapshot.exists() ? playerSnapshot.data() : {};
+
   const payload = {
     uid,
-    characterName,
-    accessCodeHash: await sha256(accessCode),
-    progress: {
+    playerName,
+    playerCode,
+    coins: typeof previousData.coins === "number" ? previousData.coins : 0,
+    rank: previousData.rank || "Rookie",
+    progress: previousData.progress || {
       currentLevel: 1,
       unlockedLevels: [1]
     },
-    inventory: [],
-    isAdmin: false,
+    inventory: Array.isArray(previousData.inventory) ? previousData.inventory : [],
+    isAdmin: previousData.isAdmin ?? false,
     updatedAt: serverTimestamp()
   };
 
@@ -39,12 +43,4 @@ export async function getPlayerProfile(uid) {
   }
 
   return playerSnapshot.data();
-}
-
-async function sha256(value) {
-  const content = new TextEncoder().encode(value);
-  const buffer = await crypto.subtle.digest("SHA-256", content);
-  return Array.from(new Uint8Array(buffer))
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("");
 }
