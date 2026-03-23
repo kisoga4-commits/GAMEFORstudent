@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Maze Kids - Game Scene</title>
+    <link rel="stylesheet" href="./src/css/styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <section class="card card-game">
+        <p class="badge">🧩 Data-driven Levels</p>
+        <h1>Game Scene</h1>
+        <p class="subtitle">โหลดด่านจาก Cloud Firestore โดยตรง (collection: <code>levels</code>) เฉพาะด่านที่ <code>status=active</code></p>
+
+        <section class="queue-panel" aria-label="เลือกด่าน">
+          <h2>เลือกด่าน</h2>
+          <div class="action-row">
+            <select id="levelSelect" aria-label="เลือกด่าน"></select>
+            <button id="loadLevelBtn" type="button">โหลดด่าน</button>
+          </div>
+        </section>
+
+        <section class="queue-panel" aria-label="ข้อมูลด่าน">
+          <h2 id="levelTitle">-</h2>
+          <p><strong>World:</strong> <span id="levelWorld">-</span></p>
+          <p><strong>คำอธิบาย:</strong> <span id="levelDescription">-</span></p>
+          <p><strong>โจทย์:</strong> <span id="levelQuestion">-</span></p>
+          <p><strong>ตัวเลือก:</strong> <span id="levelChoices">-</span></p>
+          <p><strong>คำตอบที่ถูก:</strong> <span id="levelAnswer">-</span></p>
+          <p><strong>รางวัล:</strong> <span id="levelReward">-</span></p>
+        </section>
+
+        <p id="statusMessage" class="status" role="status" aria-live="polite"></p>
+
+        <div class="action-row">
+          <a class="link-btn link-btn-secondary" href="./lobby.html">กลับหน้า Lobby</a>
+          <a class="link-btn" href="./admin.html">ไปหน้า Admin</a>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="./src/js/game.js"></script>
+  </body>
+</html>
