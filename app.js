@@ -18,6 +18,7 @@ const playerGreeting = document.getElementById("playerGreeting");
 const levelModal = document.getElementById("levelModal");
 const levelName = document.getElementById("levelName");
 const levelDescription = document.getElementById("levelDescription");
+const levelPrompt = document.getElementById("levelPrompt");
 const levelLock = document.getElementById("levelLock");
 const startLevelBtn = document.getElementById("startLevelBtn");
 const closeModalBtn = document.getElementById("closeModalBtn");
@@ -89,6 +90,7 @@ const createLevelNode = (level) => {
     <span class="level-label">${level.shortName}</span>
   `;
   levelNode.setAttribute("aria-label", level.name);
+  levelNode.addEventListener("click", () => openLevelModal(level));
   return levelNode;
 };
 
@@ -159,6 +161,7 @@ const openLevelModal = (level) => {
 
   levelName.textContent = level.name;
   levelDescription.textContent = level.description;
+  levelPrompt.textContent = "จะเริ่มทดสอบด่านนี้ไหม?";
   levelLock.textContent = unlocked ? "สถานะ: ✅ ปลดล็อกแล้ว" : "สถานะ: 🔒 ยังไม่ปลดล็อก";
 
   startLevelBtn.disabled = !unlocked;
