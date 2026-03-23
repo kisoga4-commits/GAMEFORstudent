@@ -16,16 +16,28 @@
   <body class="world-page">
     <main class="world-shell" aria-label="แผนที่โลกหลักของเกม">
       <header class="world-header">
-        <p class="chip">🌟 World Map</p>
+        <p class="chip">🎮 เกมผจญภัยเด็ก</p>
         <h1 id="playerGreeting">สวัสดี นักผจญภัย</h1>
-        <p id="worldStatus" class="world-status" aria-live="polite">กำลังเข้าสู่โลกเกม...</p>
+        <p id="worldStatus" class="world-status" aria-live="polite">กำลังโหลดโลกหลัก...</p>
       </header>
 
-      <section class="map-frame" aria-label="แผนที่ด่าน">
-        <div id="worldMap" class="world-map" role="application" aria-label="แผนที่เกม"></div>
+      <section class="map-frame" aria-label="แผนที่โลก">
+        <div id="worldMap" class="world-map" role="application" aria-label="แผนที่เกมสำหรับการเดินตัวละคร">
+          <div class="decor decor-cloud">☁️</div>
+          <div class="decor decor-cloud cloud-2">☁️</div>
+          <div class="decor decor-tree">🌳</div>
+          <div class="decor decor-tree tree-2">🌲</div>
+          <div class="decor decor-house">🏡</div>
+          <svg class="map-path" viewBox="0 0 100 100" aria-hidden="true">
+            <path d="M15 26 C30 25, 38 32, 48 33 S70 22, 84 30" />
+            <path d="M48 33 C45 45, 46 52, 44 66" />
+            <path d="M44 66 C53 70, 65 72, 78 74" />
+          </svg>
+        </div>
       </section>
 
-      <section class="controls" aria-label="ปุ่มบังคับเดิน">
+      <section class="controls" aria-label="ปุ่มบังคับเดินบนมือถือ">
+        <p class="controls-title">บังคับเดิน: ลูกศร/WASD หรือปุ่มด้านล่าง</p>
         <button type="button" class="move-btn" data-dir="up" aria-label="เดินขึ้น">▲</button>
         <div class="controls-row">
           <button type="button" class="move-btn" data-dir="left" aria-label="เดินซ้าย">◀</button>
