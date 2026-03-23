@@ -1,11 +1,11 @@
 {
-  "name": "ForKid Cloud Sync",
-  "short_name": "ForKid",
+  "name": "ForKid Cloud Sync v3",
+  "short_name": "ForKid v3",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#eff6ff",
-  "theme_color": "#2563eb",
+  "theme_color": "#5b4bff",
   "icons": [
     {
       "src": "./icons/icon-192.svg",
