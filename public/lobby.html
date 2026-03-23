@@ -7,13 +7,24 @@
     <link rel="stylesheet" href="../src/css/styles.css" />
   </head>
   <body>
-    <main class="container">
-      <section class="card">
-        <h1>Lobby</h1>
-        <p>ล็อกอินสำเร็จแล้ว (Step 1)</p>
-        <p>Step ถัดไปจะเพิ่มจำนวนคนออนไลน์แบบ realtime จาก Realtime Database</p>
-        <a class="link-btn" href="./index.html">กลับหน้าเข้าเกม</a>
+    <main class="page">
+      <section class="game-card">
+        <p class="badge">🏠 Lobby</p>
+        <h1>ยินดีต้อนรับ!</h1>
+        <p id="lobbyStatus" class="status" aria-live="polite"></p>
+
+        <div class="profile-box">
+          <p><strong>ชื่อตัวละคร:</strong> <span id="profileName">-</span></p>
+          <p><strong>รหัส:</strong> <span id="profileCode">-</span></p>
+          <p><strong>เหรียญ:</strong> <span id="profileCoins">0</span></p>
+          <p><strong>แรงก์:</strong> <span id="profileRank">1</span></p>
+          <p><strong>ด่านปัจจุบัน:</strong> <span id="profileLevel">1</span></p>
+        </div>
+
+        <a class="link-btn" href="./index.html">ออกจาก Lobby</a>
       </section>
     </main>
+
+    <script type="module" src="../src/js/lobby.js"></script>
   </body>
 </html>
