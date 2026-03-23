@@ -1,3 +1,4 @@
+import { analyticsPromise } from "./firebase.js";
 import { loginAnonymously } from "./services/auth.js";
 import { savePlayerProfile } from "./services/player.js";
 
@@ -6,6 +7,7 @@ const submitBtn = document.getElementById("submitBtn");
 const statusMessage = document.getElementById("statusMessage");
 
 registerServiceWorker();
+void analyticsPromise;
 
 loginForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -14,8 +16,13 @@ loginForm?.addEventListener("submit", async (event) => {
   const characterName = String(formData.get("characterName") || "").trim();
   const accessCode = String(formData.get("accessCode") || "").trim();
 
-  if (!characterName || !accessCode) {
-    setStatus("กรุณากรอกข้อมูลให้ครบ", true);
+  if (!isValidCharacterName(characterName)) {
+    setStatus("ชื่อตัวละครต้องมี 2-24 ตัวอักษร (ไทย/อังกฤษ/ตัวเลข)", true);
+    return;
+  }
+
+  if (!isValidAccessCode(accessCode)) {
+    setStatus("รหัสต้องมี 4-16 ตัวอักษร", true);
     return;
   }
 
@@ -47,7 +54,16 @@ function setLoading(isLoading) {
 
 function setStatus(message, isError = false) {
   statusMessage.textContent = message;
-  statusMessage.style.color = isError ? "#fda4af" : "#86efac";
+  statusMessage.classList.toggle("status-error", isError);
+  statusMessage.classList.toggle("status-success", !isError && Boolean(message));
+}
+
+function isValidCharacterName(name) {
+  return /^[\p{L}\p{N}_\-\s]{2,24}$/u.test(name);
+}
+
+function isValidAccessCode(code) {
+  return code.length >= 4 && code.length <= 16;
 }
 
 function registerServiceWorker() {
