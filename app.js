@@ -3,7 +3,8 @@ import {
   browserLocalPersistence,
   getAuth,
   setPersistence,
-  signInAnonymously
+  signInAnonymously,
+  signOut
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import {
   doc,
@@ -36,6 +37,7 @@ const levelArena = document.getElementById("levelArena");
 const levelFeedback = document.getElementById("levelFeedback");
 const submitAnswerBtn = document.getElementById("submitAnswerBtn");
 const backToWorldBtn = document.getElementById("backToWorldBtn");
+const logoutBtn = document.getElementById("logoutBtn");
 
 const MAP_SIZE = 100;
 const HERO_SIZE = 9;
@@ -370,6 +372,17 @@ const bindControls = () => {
 
   submitAnswerBtn.addEventListener("click", submitAnswer);
   backToWorldBtn.addEventListener("click", backToWorld);
+  logoutBtn.addEventListener("click", async () => {
+    setStatus("กำลังออกจากระบบ...");
+    logoutBtn.disabled = true;
+    try {
+      await signOut(auth);
+      window.location.href = "./setup.html";
+    } catch {
+      setStatus("ออกจากระบบไม่สำเร็จ ลองใหม่อีกครั้ง", true);
+      logoutBtn.disabled = false;
+    }
+  });
 };
 
 const renderWorld = () => {
