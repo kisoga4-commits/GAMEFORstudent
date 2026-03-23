@@ -63,6 +63,15 @@ let activeLevel = null;
 let selectedChoiceId = null;
 let holdMoveTimer = null;
 let currentScene = "world";
+let lastStartTriggerAt = 0;
+
+const logFlow = (message, payload) => {
+  if (payload === undefined) {
+    console.info(`[LEVEL_FLOW] ${message}`);
+    return;
+  }
+  console.info(`[LEVEL_FLOW] ${message}`, payload);
+};
 
 const setStatus = (message, isError = false) => {
   worldStatus.textContent = message;
@@ -126,6 +135,7 @@ const updateLevelHeroPosition = () => {
 };
 
 const closeLevelModal = (resetActive = true) => {
+  logFlow("ปิด popup ด่าน", { resetActive });
   levelModal.hidden = true;
   if (resetActive) {
     activeLevel = null;
@@ -133,6 +143,7 @@ const closeLevelModal = (resetActive = true) => {
 };
 
 const openLevelModal = (level) => {
+  logFlow("เปิด popup ด่าน", { levelId: level.id, levelName: level.name });
   activeLevel = level;
   const unlocked = isLevelUnlocked(level);
 
@@ -157,6 +168,7 @@ const checkLevelCollision = () => {
     return;
   }
 
+  logFlow("ชนด่านแล้ว", { levelId: hitLevel.id, x: hero.x, y: hero.y });
   openLevelModal(hitLevel);
 };
 
@@ -292,9 +304,35 @@ const submitAnswer = async () => {
 };
 
 const startLevel = (level) => {
+  logFlow("กำลังโหลดด่าน", { levelId: level?.id });
+
+  if (!levelShell || !worldShell) {
+    console.error("[LEVEL_FLOW] scene shell ไม่พร้อม", {
+      hasLevelShell: Boolean(levelShell),
+      hasWorldShell: Boolean(worldShell)
+    });
+    setStatus("เปิดด่านไม่สำเร็จ: ไม่พบหน้าด่าน", true);
+    return;
+  }
+
   if (!level.challenge) {
-    setStatus("ด่านนี้ยังไม่เปิดให้เล่นในเวอร์ชันนี้");
-    closeLevelModal();
+    logFlow("ด่านยังไม่พร้อมเต็มรูปแบบ สร้าง scene แบบพื้นฐาน", { levelId: level.id });
+    activeLevel = level;
+    selectedChoiceId = null;
+    levelSceneTitle.textContent = level.name;
+    levelSceneQuestion.textContent = "ด่านนี้กำลังเตรียมโจทย์อยู่ (Demo Scene)";
+    levelArena.innerHTML = `
+      <div style="display:grid;place-items:center;height:100%;font-weight:700;color:#1e3a8a;text-align:center;padding:16px;">
+        <p>ยินดีต้อนรับสู่ ${level.name}<br/>สามารถกด "กลับแผนที่" ได้ทันที</p>
+      </div>
+    `;
+    setLevelFeedback("เข้า scene ด่านสำเร็จ (โหมดพื้นฐาน)");
+    submitAnswerBtn.disabled = true;
+    closeLevelModal(false);
+    currentScene = "level";
+    worldShell.hidden = true;
+    levelShell.hidden = false;
+    logFlow("เข้า scene ด่านสำเร็จ", { levelId: level.id, mode: "basic" });
     return;
   }
 
@@ -320,6 +358,27 @@ const startLevel = (level) => {
   currentScene = "level";
   worldShell.hidden = true;
   levelShell.hidden = false;
+  logFlow("เข้า scene ด่านสำเร็จ", { levelId: level.id, mode: "challenge" });
+};
+
+const triggerStartLevel = (source = "click") => {
+  const now = Date.now();
+  if (now - lastStartTriggerAt < 250) {
+    return;
+  }
+
+  lastStartTriggerAt = now;
+  logFlow("กดเริ่มด่านแล้ว", {
+    source,
+    hasActiveLevel: Boolean(activeLevel),
+    isDisabled: startLevelBtn.disabled
+  });
+
+  if (!activeLevel || startLevelBtn.disabled) {
+    return;
+  }
+
+  startLevel(activeLevel);
 };
 
 const bindControls = () => {
@@ -365,9 +424,11 @@ const bindControls = () => {
     }
   });
 
-  startLevelBtn.addEventListener("click", () => {
-    if (!activeLevel || startLevelBtn.disabled) return;
-    startLevel(activeLevel);
+  logFlow("bind event ปุ่มเริ่มด่าน");
+  startLevelBtn.addEventListener("click", () => triggerStartLevel("click"));
+  startLevelBtn.addEventListener("touchend", (event) => {
+    event.preventDefault();
+    triggerStartLevel("touchend");
   });
 
   submitAnswerBtn.addEventListener("click", submitAnswer);
@@ -423,11 +484,13 @@ const init = async () => {
     setStatus("เดินชนด่านเพื่อเปิดหน้าต่างเริ่มทดสอบ");
     renderWorld();
     bindControls();
+    logFlow("โหลด world map สำเร็จ");
 
     if ("serviceWorker" in navigator) {
       await navigator.serviceWorker.register("./service-worker.js");
     }
   } catch {
+    console.error("[LEVEL_FLOW] error ตอน init");
     setStatus("เชื่อมต่อโลกเกมไม่สำเร็จ กรุณาลองใหม่", true);
   }
 };
