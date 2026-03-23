@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Maze Kids - เข้าเกม</title>
+    <meta name="theme-color" content="#0f172a" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="../src/css/styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <section class="card">
+        <h1>Maze Kids</h1>
+        <p class="subtitle">เกมการศึกษาแนวเขาวงกตสำหรับเด็ก (MVP - Step 1)</p>
+
+        <form id="loginForm" class="form" autocomplete="off">
+          <label for="characterName">ชื่อตัวละคร</label>
+          <input
+            id="characterName"
+            name="characterName"
+            type="text"
+            minlength="2"
+            maxlength="24"
+            placeholder="เช่น BraveKid"
+            required
+          />
+
+          <label for="accessCode">รหัส</label>
+          <input
+            id="accessCode"
+            name="accessCode"
+            type="password"
+            minlength="4"
+            maxlength="16"
+            placeholder="กรอกรหัส"
+            required
+          />
+
+          <button id="submitBtn" type="submit">เข้าเกม</button>
+        </form>
+
+        <p id="statusMessage" class="status" aria-live="polite"></p>
+      </section>
+    </main>
+
+    <script type="module" src="../src/js/main.js"></script>
+  </body>
+</html>
