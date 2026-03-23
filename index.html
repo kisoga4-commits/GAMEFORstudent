@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ForKid</title>
-    <meta name="theme-color" content="#2563eb" />
+    <meta name="theme-color" content="#7c3aed" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icons/icon-192.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icons/icon-512.svg" />
@@ -16,16 +16,16 @@
         <h1>ForKid</h1>
 
         <form id="profileForm" novalidate>
-          <label for="playerName">👤 playerName</label>
-          <input id="playerName" name="playerName" type="text" minlength="2" maxlength="30" required />
+          <label for="playerName" aria-label="ชื่อผู้เล่น">👤</label>
+          <input id="playerName" name="playerName" type="text" minlength="2" maxlength="30" placeholder="ชื่อ" required />
 
-          <label for="playerCode">🔐 playerCode</label>
-          <input id="playerCode" name="playerCode" type="text" minlength="2" maxlength="30" required />
+          <label for="playerCode" aria-label="รหัสผู้เล่น">🔐</label>
+          <input id="playerCode" name="playerCode" type="text" minlength="2" maxlength="30" placeholder="รหัส" required />
 
-          <button type="submit" id="saveBtn">💾 บันทึกข้อมูล</button>
+          <button type="submit" id="saveBtn">💾 บันทึก</button>
         </form>
 
-        <button type="button" id="installBtn" class="secondary" hidden>⬇️ ติดตั้งแอป (Install)</button>
+        <button type="button" id="installBtn" class="secondary" hidden>📲 ติดตั้ง</button>
         <p id="status" aria-live="polite"></p>
       </section>
     </main>
