@@ -1,0 +1,106 @@
+:root {
+  color-scheme: light;
+  font-family: "Noto Sans Thai", "Prompt", system-ui, -apple-system, sans-serif;
+  --bg: #eff6ff;
+  --card: #ffffff;
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --text: #0f172a;
+  --muted: #475569;
+  --error: #dc2626;
+  --border: #cbd5e1;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+
+.card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--card);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 12px 30px rgb(15 23 42 / 0.08);
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.subtitle {
+  margin: 8px 0 16px;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+form {
+  display: grid;
+  gap: 10px;
+}
+
+label {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+input {
+  height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 1rem;
+}
+
+button {
+  height: 46px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+button:hover {
+  background: var(--primary-dark);
+}
+
+button.secondary {
+  margin-top: 12px;
+  background: #334155;
+}
+
+#status {
+  min-height: 22px;
+  margin: 12px 0 0;
+  color: #0b5b28;
+  font-size: 0.95rem;
+}
+
+#status.error {
+  color: var(--error);
+}
+
+@media (min-width: 768px) {
+  .card {
+    padding: 24px;
+  }
+}

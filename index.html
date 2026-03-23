@@ -3,57 +3,35 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GameForStudent - Cloud Sync</title>
+    <title>ForKid Cloud Sync</title>
     <meta name="theme-color" content="#2563eb" />
+    <meta name="description" content="บันทึกข้อมูลผู้เล่นและซิงก์ขึ้น Cloud Firestore" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icons/icon-192.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icons/icon-512.svg" />
-    <link rel="stylesheet" href="./src/css/styles.css" />
+    <link rel="stylesheet" href="./styles.css" />
   </head>
-  <body class="page-login">
-    <main class="container">
-      <section class="card card-login" aria-label="ฟอร์มผู้เล่น">
-        <p class="badge">PWA + Firebase Cloud Sync</p>
-        <h1 class="game-title">ข้อมูลผู้เล่น</h1>
-        <p class="subtitle">กรอกข้อมูลแล้วกดบันทึก เพื่อ sync ขึ้น Firestore</p>
+  <body>
+    <main class="app">
+      <section class="card" aria-label="ฟอร์มข้อมูลผู้เล่น">
+        <h1>เข้าใช้งาน</h1>
+        <p class="subtitle">กรอกข้อมูลเพื่อบันทึกขึ้น Cloud Sync</p>
 
-        <form id="loginForm" class="form" autocomplete="on">
+        <form id="profileForm" novalidate>
           <label for="playerName">playerName</label>
-          <input
-            id="playerName"
-            name="playerName"
-            type="text"
-            minlength="2"
-            maxlength="24"
-            placeholder="เช่น LittleHero"
-            required
-          />
+          <input id="playerName" name="playerName" type="text" minlength="2" maxlength="30" required />
 
           <label for="playerCode">playerCode</label>
-          <input
-            id="playerCode"
-            name="playerCode"
-            type="text"
-            minlength="4"
-            maxlength="24"
-            placeholder="เช่น KID-1234"
-            required
-          />
+          <input id="playerCode" name="playerCode" type="text" minlength="2" maxlength="30" required />
 
-          <button id="submitBtn" type="submit">บันทึกข้อมูล</button>
+          <button type="submit" id="saveBtn">บันทึกและเข้าใช้งาน</button>
         </form>
-        <button id="goLobbyBtn" type="button" class="btn-secondary" hidden>เข้า Lobby</button>
-        <div class="action-row single-col">
-          <a class="link-btn" href="./lobby.html">ไปหน้า Lobby</a>
-          <a class="link-btn link-btn-secondary" href="./game.html">ไปหน้า Game</a>
-          <a class="link-btn link-btn-secondary" href="./admin.html">ไปหน้า Admin</a>
-        </div>
 
-        <button id="installBtn" type="button" class="btn-secondary" hidden>ติดตั้งแอป (Install)</button>
-        <p id="statusMessage" class="status" aria-live="polite"></p>
+        <button type="button" id="installBtn" class="secondary" hidden>ติดตั้งแอป</button>
+        <p id="status" aria-live="polite"></p>
       </section>
     </main>
 
-    <script type="module" src="./src/js/main.js"></script>
+    <script type="module" src="./app.js"></script>
   </body>
 </html>

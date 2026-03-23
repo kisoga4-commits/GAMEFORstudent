@@ -1,12 +1,9 @@
 {
-  "id": "/",
-  "name": "GameForStudent Cloud Sync",
-  "short_name": "GF Student",
-  "description": "PWA สำหรับกรอกข้อมูลผู้เล่นและซิงก์ขึ้น Firebase Cloud Firestore",
+  "name": "ForKid Cloud Sync",
+  "short_name": "ForKid",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait",
   "background_color": "#eff6ff",
   "theme_color": "#2563eb",
   "icons": [
