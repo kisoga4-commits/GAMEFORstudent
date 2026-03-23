@@ -245,6 +245,11 @@ h1 {
   margin: 0 0 8px;
 }
 
+.level-prompt {
+  font-weight: 800;
+  color: #4338ca;
+}
+
 .lock-state {
   font-weight: 700;
 }
